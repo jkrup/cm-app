@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id @default(cuid())
+  username      String?      @unique
+  email         String?      @unique
+  emailVerified DateTime?
+  name          String?
+  password      String?
+  image         String?
+  coins         Int          @default(0)
+  premiumUntil  DateTime?
+  createdAt     DateTime     @default(now())
+  lastLogin     DateTime     @default(now())
+
+  accounts      Account[]
+  sessions      Session[]
+  mammoth       Mammoth?
+  quests        UserQuest[]
+  friendships1  Friendship[] @relation("FriendshipUser1")
+  friendships2  Friendship[] @relation("FriendshipUser2")
+  sentInteractions     FriendInteraction[] @relation("SentInteractions")
+  receivedInteractions FriendInteraction[] @relation("ReceivedInteractions")
+  gameScores    GameScore[]
+  transactions  Transaction[]
+  loginStreak   LoginStreak?
+  notifications Notification[]
+}
+
+// NextAuth Models
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// App Models
+model Mammoth {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  name             String
+  happiness        Float    @default(50)
+  excitement       Float    @default(50)
+  lastInteraction  DateTime @default(now())
+  growthStage      String   @default("baby")
+  creationDate     DateTime @default(now())
+  thawedDate       DateTime?
+  level            Int      @default(1)
+  xp               Int      @default(0)
+  
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customizations   MammothCustomization[]
+}
+
+model Season {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?  @db.Text
+  startDate       DateTime
+  endDate         DateTime
+  active          Boolean  @default(true)
+  bannerImageUrl  String?
+  
+  items           CustomizationItem[]
+  quests          Quest[]
+}
+
+model CustomizationItem {
+  id              String   @id @default(cuid())
+  category        String
+  name            String
+  description     String?  @db.Text
+  price           Int      @default(0)
+  rarity          String   @default("common")
+  isPremium       Boolean  @default(false)
+  isSeasonal      Boolean  @default(false)
+  seasonId        String?
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  
+  season          Season?  @relation(fields: [seasonId], references: [id])
+  mammothItems    MammothCustomization[]
+  questRewards    Quest[]
+  giftItems       FriendInteraction[]
+  transactions    Transaction[]
+}
+
+model MammothCustomization {
+  id          String   @id @default(cuid())
+  mammothId   String
+  itemId      String
+  isEquipped  Boolean  @default(false)
+  acquiredAt  DateTime @default(now())
+  
+  mammoth     Mammoth  @relation(fields: [mammothId], references: [id], onDelete: Cascade)
+  item        CustomizationItem @relation(fields: [itemId], references: [id])
+  
+  @@unique([mammothId, itemId])
+}
+
+model Quest {
+  id                String   @id @default(cuid())
+  title             String
+  description       String?  @db.Text
+  questType         String
+  requirementType   String
+  requirementCount  Int      @default(1)
+  rewardCoins       Int      @default(0)
+  rewardXp          Int      @default(0)
+  rewardItemId      String?
+  seasonId          String?
+  isRepeatable      Boolean  @default(false)
+  startDate         DateTime?
+  endDate           DateTime?
+  
+  rewardItem        CustomizationItem? @relation(fields: [rewardItemId], references: [id])
+  season            Season? @relation(fields: [seasonId], references: [id])
+  userQuests        UserQuest[]
+}
+
+model UserQuest {
+  id          String    @id @default(cuid())
+  userId      String
+  questId     String
+  progress    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  resetAt     DateTime?
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest       Quest     @relation(fields: [questId], references: [id])
+  
+  @@unique([userId, questId])
+}
+
+model Friendship {
+  id          String   @id @default(cuid())
+  userId1     String
+  userId2     String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  
+  user1       User     @relation("FriendshipUser1", fields: [userId1], references: [id], onDelete: Cascade)
+  user2       User     @relation("FriendshipUser2", fields: [userId2], references: [id], onDelete: Cascade)
+  
+  @@unique([userId1, userId2])
+}
+
+model FriendInteraction {
+  id            String   @id @default(cuid())
+  fromUserId    String
+  toUserId      String
+  interactionType String
+  content       String?  @db.Text
+  giftItemId    String?
+  createdAt     DateTime @default(now())
+  isRead        Boolean  @default(false)
+  
+  fromUser      User     @relation("SentInteractions", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser        User     @relation("ReceivedInteractions", fields: [toUserId], references: [id], onDelete: Cascade)
+  giftItem      CustomizationItem? @relation(fields: [giftItemId], references: [id])
+}
+
+model GameScore {
+  id        String   @id @default(cuid())
+  userId    String
+  gameType  String
+  score     Int
+  playedAt  DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  transactionType String
+  amount          Int
+  description     String?
+  itemId          String?
+  createdAt       DateTime @default(now())
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item            CustomizationItem? @relation(fields: [itemId], references: [id])
+}
+
+model LoginStreak {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastLoginDate   DateTime @default(now()) @db.Date
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id                String   @id @default(cuid())
+  userId            String
+  notificationType  String
+  title             String
+  message           String
+  isRead            Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  actionUrl         String?
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
