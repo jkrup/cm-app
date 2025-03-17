@@ -2,15 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 248, 249, 250;
+  --foreground-rgb: 214, 236, 240;
+  --background-rgb: 7, 15, 36;
+  --background-dark: 2, 6, 20;
+  --background-medium: 7, 15, 36;
+  --background-light: 15, 30, 60;
+  --accent-blue-light: 110, 203, 220;
+  --accent-blue-dark: 56, 152, 184;
+  --glow-color: 40, 180, 220;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  background: linear-gradient(135deg, 
+    rgb(var(--background-dark)) 0%,
+    rgb(var(--background-medium)) 40%,
+    rgb(var(--background-light)) 80%,
+    rgb(var(--background-medium)) 100%
+  );
   overflow-x: hidden;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  font-family: 'Fredoka One', system-ui, sans-serif;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Night sky with stars */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 25% 15%, white, transparent),
+    radial-gradient(1px 1px at 50% 40%, white, transparent),
+    radial-gradient(1.5px 1.5px at 15% 25%, white, transparent),
+    radial-gradient(1px 1px at 75% 10%, white, transparent),
+    radial-gradient(1.5px 1.5px at 85% 35%, white, transparent),
+    radial-gradient(1px 1px at 35% 65%, white, transparent),
+    radial-gradient(1.5px 1.5px at 65% 75%, white, transparent),
+    radial-gradient(1px 1px at 90% 85%, white, transparent),
+    radial-gradient(1.5px 1.5px at 10% 85%, white, transparent),
+    radial-gradient(1px 1px at 45% 90%, white, transparent);
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.4;
+  z-index: -10;
+  animation: twinkling 8s infinite alternate;
+  pointer-events: none;
+}
+
+/* Additional stars layer with different animation timing */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 10% 10%, white, transparent),
+    radial-gradient(1.5px 1.5px at 30% 35%, white, transparent),
+    radial-gradient(1px 1px at 60% 20%, white, transparent),
+    radial-gradient(1.5px 1.5px at 70% 55%, white, transparent),
+    radial-gradient(1px 1px at 20% 50%, white, transparent),
+    radial-gradient(1.5px 1.5px at 40% 70%, white, transparent),
+    radial-gradient(1px 1px at 80% 80%, white, transparent),
+    radial-gradient(1.5px 1.5px at 95% 60%, white, transparent),
+    radial-gradient(1px 1px at 55% 95%, white, transparent),
+    radial-gradient(1.5px 1.5px at 5% 75%, white, transparent);
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  opacity: 0.3;
+  z-index: -9;
+  animation: twinkling 12s infinite alternate-reverse;
+  pointer-events: none;
+}
+
+@keyframes twinkling {
+  0% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.chonky-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  background: linear-gradient(to bottom, rgb(var(--accent-blue-light)), rgb(var(--accent-blue-dark)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 4px 8px rgba(var(--glow-color), 0.3);
+  letter-spacing: 1px;
+}
+
+.chonky-subtitle {
+  font-size: 1.5rem;
+  color: rgb(var(--foreground-rgb));
+  text-shadow: 0 2px 4px rgba(var(--glow-color), 0.2);
+}
+
+/* Blue aura effect without circular ring */
+.blue-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--glow-color), 0.4) 0%, rgba(var(--glow-color), 0) 70%);
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+/* Half-height bounce animation for "content" mood */
+@keyframes bounce-small {
+  0%, 100% {
+    transform: translateY(-5px);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce-small {
+  animation: bounce-small 1s infinite;
 }
