@@ -29,6 +29,7 @@ export default function FriendsPage() {
     const [activeTab, setActiveTab] = useState('friends');
     const [friendCode, setFriendCode] = useState('');
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
 
     // Sample data
@@ -85,6 +86,7 @@ export default function FriendsPage() {
 
     const handleAddFriend = () => {
         if (friendCode.trim()) {
+            setSuccessMessage('Friend request sent successfully!');
             setShowSuccessAlert(true);
             setFriendCode('');
             setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -92,6 +94,7 @@ export default function FriendsPage() {
     };
 
     const handleAcceptRequest = (requestId: string) => {
+        setSuccessMessage('Friend request accepted!');
         setShowSuccessAlert(true);
         setTimeout(() => setShowSuccessAlert(false), 3000);
     };
@@ -139,8 +142,8 @@ export default function FriendsPage() {
                     <button
                         onClick={() => setActiveTab('friends')}
                         className={`px-4 py-2 rounded-lg ${activeTab === 'friends'
-                                ? 'bg-primary text-white'
-                                : 'bg-white text-gray-600'
+                            ? 'bg-primary text-white'
+                            : 'bg-white text-gray-600'
                             }`}
                     >
                         Friends ({friends.length})
@@ -148,8 +151,8 @@ export default function FriendsPage() {
                     <button
                         onClick={() => setActiveTab('requests')}
                         className={`px-4 py-2 rounded-lg ${activeTab === 'requests'
-                                ? 'bg-primary text-white'
-                                : 'bg-white text-gray-600'
+                            ? 'bg-primary text-white'
+                            : 'bg-white text-gray-600'
                             } relative`}
                     >
                         Requests
@@ -158,6 +161,19 @@ export default function FriendsPage() {
                                 {friendRequests.length}
                             </span>
                         )}
+                    </button>
+                </div>
+
+                {/* Friendship Tree Button */}
+                <div className="bg-white rounded-lg p-4 shadow mb-4">
+                    <button
+                        onClick={() => router.push('/friendship-tree')}
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span>View Friendship Tree</span>
                     </button>
                 </div>
 
@@ -211,9 +227,15 @@ export default function FriendsPage() {
                                                 <AlertDialogDescription className="space-y-4">
                                                     <button
                                                         onClick={() => handleSendGift(friend)}
-                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-lg mb-6"
+                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-lg mb-2"
                                                     >
                                                         🎁 Send Gift
+                                                    </button>
+                                                    <button
+                                                        onClick={() => router.push('/friendship-tree')}
+                                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-lg mb-6"
+                                                    >
+                                                        🌳 View in Friendship Tree
                                                     </button>
                                                     <button
                                                         className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-lg text-red-500"
@@ -284,6 +306,7 @@ export default function FriendsPage() {
                             <AlertDialogAction
                                 className="bg-primary hover:bg-primary/90"
                                 onClick={() => {
+                                    setSuccessMessage('Gift sent successfully!');
                                     setShowSuccessAlert(true);
                                     setSelectedFriend(null);
                                     setTimeout(() => setShowSuccessAlert(false), 3000);
@@ -301,7 +324,7 @@ export default function FriendsPage() {
                 <div className="fixed bottom-20 left-0 right-0 mx-auto max-w-md px-4">
                     <Alert className="bg-green-100 border-green-200">
                         <AlertDescription>
-                            🎉 {selectedFriend ? 'Gift sent successfully!' : 'Friend request sent successfully!'}
+                            🎉 {successMessage}
                         </AlertDescription>
                     </Alert>
                 </div>
