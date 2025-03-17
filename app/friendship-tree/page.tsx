@@ -76,9 +76,14 @@ export default function FriendshipTreePage() {
     const handleInteraction = (interactionType: string) => {
         if (!selectedFriend) return;
 
+        // Handle chat interaction differently - navigate to chat page
+        if (interactionType === 'chat') {
+            router.push(`/chat/${selectedFriend.id}`);
+            return;
+        }
+
         // Different messages based on interaction type
         const messages = {
-            chat: `Started a chat with ${selectedFriend.name}!`,
             play: `Invited ${selectedFriend.name} to play a game!`,
             gift: `Sent a gift to ${selectedFriend.name}!`,
             dance: `Performed a friendship dance with ${selectedFriend.name}!`

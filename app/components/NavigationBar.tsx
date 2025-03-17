@@ -16,6 +16,12 @@ export default function NavigationBar() {
           </svg>
           <span className="text-xs">Friends</span>
         </Link>
+        <Link href="/chats" className="flex flex-col items-center">
+          <svg className="w-6 h-6" viewBox="0 0 24 24">
+            <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20" />
+          </svg>
+          <span className="text-xs">Chats</span>
+        </Link>
         <Link href="/minigames" className="flex flex-col items-center">
           <svg className="w-6 h-6" viewBox="0 0 24 24">
             <path d="M21,6H3A2,2 0 0,0 1,8V16A2,2 0 0,0 3,18H21A2,2 0 0,0 23,16V8A2,2 0 0,0 21,6M11,13H8V16H6V13H3V11H6V8H8V11H11M15.5,15A1.5,1.5 0 0,1 14,13.5A1.5,1.5 0 0,1 15.5,12A1.5,1.5 0 0,1 17,13.5A1.5,1.5 0 0,1 15.5,15M19.5,12A1.5,1.5 0 0,1 18,10.5A1.5,1.5 0 0,1 19.5,9A1.5,1.5 0 0,1 21,10.5A1.5,1.5 0 0,1 19.5,12Z" />
