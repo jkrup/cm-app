@@ -1,0 +1,297 @@
+---
+
+# Woolly Mammoth Virtual Pet App Design Document
+
+---
+
+## **1. Introduction**
+
+### **1.1 Overview**
+
+This document outlines the design for a modern virtual pet app centered around a woolly mammoth. The app offers users a unique blend of nostalgia and innovation by combining classic pet care mechanics with modern technologies like AI-generated art and social interaction features. Users can befriend and care for their own mammoth, customizing it and engaging in various activities to build a strong emotional connection.
+
+### **1.2 Purpose and Objectives**
+
+- **Purpose**: To provide an engaging virtual pet experience that fosters emotional connections and daily interaction, blending classic care mechanics with modern AI technology.
+
+- **Objectives**:
+  - Create a virtual companion that users can nurture and personalize.
+  - Utilize AI-generated art to offer unique customization options for each mammoth.
+  - Encourage regular user engagement through daily quests, care tasks, and social features.
+  - Build a community where users can connect and share experiences.
+
+### **1.3 Target Audience**
+
+- **Primary Audience**: Individuals who enjoy virtual pet games, AI art, and social gaming experiences.
+- **Secondary Audience**: Fans of nostalgic virtual pet games and those interested in interactive storytelling.
+
+---
+
+## **2. User Experience (UX) Design**
+
+### **2.1 User Personas**
+
+- **Alex, 12**: Enjoys caring for virtual pets and sharing experiences with friends.
+- **Jordan, 20**: Interested in AI art and unique customization options.
+- **Sam, 16**: Looks for casual games with daily rewards and social interactions.
+
+### **2.2 User Journeys**
+
+#### **2.2.1 Onboarding Experience**
+
+- **Discovery**: The user encounters a mysterious ice block upon opening the app.
+- **Interaction**: The user rubs the ice block to thaw it, revealing the woolly mammoth.
+- **Bonding**: The mammoth reacts endearingly, initiating an emotional connection.
+
+#### **2.2.2 Tutorial Phase**
+
+- **Care Introduction**: Guided steps to feed, water, and groom the mammoth.
+- **Food Preferences**: Present different foods to discover the mammoth's likes and dislikes.
+- **First Minigame**: Playing handball to establish interactive play mechanics. (If this is too complicated, then it can be postponed or unlocked later.) 
+- **Alternate First**:Stick with the care introduction above.
+
+#### **2.2.3 Daily Activities and Quests**
+
+- **Daily Login Bonuses**: Rewards for logging in daily, increasing with consecutive days.
+- **Daily Quests and Requests**: Varied daily tasks like feeding specific foods, playing minigames, or sending gifts to friends.
+
+#### **2.2.4 Social Interaction Enhancements**
+
+- **Polaroid Wall**: A wall in the mammoth's room displaying polaroid-style photos of friends' mammoths.
+- **Friendship Tree**: Visual representation of the user's friendships within the app.
+- **Sending Gifts**: Exchange daily gifts with friends to foster relationships.
+- **Postcards and Notes**: Friends can leave messages in each other's playrooms.
+
+#### **2.2.5 Seasonal Events and Themes**
+
+- **Holiday Themes**: Special themes during holidays like Halloween, New Year's, Chinese (Lunar) New Year, and Valentine's Day.
+- **Seasonal Stories**: Unique storylines or quests tied to each season or holiday.
+
+### **2.3 Wireframes and Mockups**
+
+- **Home Screen**: Shows the mammoth in its environment with interactive icons for care tasks.
+- **Polaroid Wall Screen**: Displays photos of friends' mammoths with easy navigation.
+- **Minigame Interfaces**: Simple controls for games like handball and rolling a ball.
+- **Friendship Tree Screen**: Visual representation of social connections.
+- **Customization Screen**: Options for hairstyles, accessories, and other personalization features.
+
+### **2.4 Navigation Flow**
+
+1. **Home Screen** → Care Actions (Feed, Groom, Play)
+2. **Home Screen** → Polaroid Wall / Friendship Tree (Social Interaction)
+3. **Home Screen** → Minigames
+4. **Home Screen** → Customization Options
+5. **Home Screen** → Seasonal Events / Stories
+6. **Home Screen** → Settings / Notifications
+7. **Home Screen** → News (in game news- new features etc)
+
+### **2.5 Design Principles**
+
+- **Simplicity**: Intuitive controls suitable for all ages.
+- **Emotional Engagement**: Foster a strong bond between the user and the mammoth.
+- **Personalization**: Offer extensive customization to make the experience unique.
+- **Accessibility**: Inclusive design accommodating different user needs.
+- **Progressive Unveiling**: Gradually introduce features to prevent user overwhelm.
+
+---
+
+## **3. Features and Functionality**
+
+### **3.1 Core Features**
+
+- **Interactive Care Tasks**: Feeding, bathing, combing hair, and playing with the mammoth.
+- **AI-Generated Customization**: Unique mammoth styles for each user using AI art generation.
+- **Thawing Mechanic**: Engaging onboarding process by thawing the mammoth.
+- **Emotional Metrics System**: Tracks excitement and happiness to reflect the mammoth's well-being and the strength of its bond with the user.
+
+### **3.2 Additional Features**
+
+#### **3.2.1 Social Connectivity**
+
+- **Polaroid Wall of Friends**: Connect with friends' mammoths displayed as polaroid photos.
+- **Friendship Tree**: Visualize connections with friends; each branch represents a friend.
+- **Sending Daily Gifts**: Exchange gifts to foster relationships and daily interaction.
+- **Postcards and Notes**: Leave messages in friends' playrooms.
+
+#### **3.2.2 Minigames and Interactions**
+
+- **Handball Game**: Bounce a ball back and forth with the mammoth.
+- **Roll a Ball**: Play catch or roll a ball with the mammoth.
+- **Picnic Table Chat**: Interact with the mammoth at a picnic table to strengthen bonds.
+- **Playroom Exploration**: A space filled with interactive toys and activities.
+
+#### **3.2.3 Customization and Collectibles**
+
+- **Hairstyles and Accessories**: Unlock different hairstyles, accessories, and even wings.
+- **Unlockable Poses and Movements**: New poses and tricks unlocked as users level up.
+- **Collectible Sounds**: Change the mammoth's vocalizations with sound packs.
+- **Seasonal Outfits**: Special outfits available during seasonal events.
+
+#### **3.2.4 Seasonal Content**
+
+- **Season Pass**: Access exclusive outfits, items, and abilities during a season.
+- **Holiday Themes and Stories**: Special content during holidays and seasons.
+
+#### **3.2.5 Aspects of Caring for a Pet**
+
+- **Health and Happiness Management**: Attend to the mammoth's needs to maintain its well-being.
+- **Emotional Responses**: The mammoth displays a range of emotions based on care quality.
+- **Growth Stages**: Introduce stages (baby, adolescent, adult) that unlock new interactions.
+
+---
+
+## **4. Monetization Strategy**
+
+### **4.1 Revenue Models**
+
+- **Freemium Model**: Free to download with optional in-app purchases.
+
+### **4.2 In-App Purchases**
+
+- **Season Pass**: Offers exclusive seasonal content, faster progression, and special abilities.
+- **Customization Packs**: Exclusive AI-generated styles, accessories, and habitat items.
+- **Consumable Items**: Special foods or toys that elicit unique reactions.
+- **Premium Currency**: Purchase "Ice Crystals" or "Ancient Coins" with real money for rare items.
+- **Persistent Purchases**: Purchased items are permanent, while free items may be lost if neglected.
+
+### **4.3 Advertising**
+
+- **Rewarded Ads**: Users can watch ads to gain extra excitement points, in-game currency, or special items.
+- **Non-Intrusive Banner Ads**: Displayed during certain screens without disrupting gameplay. (How do we feel about this?)
+
+
+---
+
+## **5. Marketing and Growth**
+
+### **5.1 User Acquisition Strategies**
+
+- **App Store Optimization (ASO)**: Optimize app listing with engaging visuals and targeted keywords.
+- **Social Media Campaigns**: Shareable content showcasing unique mammoths and user experiences.
+- **Analyzing Top Games**: Benchmark successful apps to adopt effective retention strategies.
+
+### **5.2 Retention Strategies**
+
+- **Daily Login Bonuses and Quests**: Incentives for consecutive logins and daily task completion.
+- **Seasonal Events and Content**: Regular updates with new themes, stories, and items.
+- **Progression and Unlockables**: Leveling system to unlock new abilities, poses, and customization options.
+- **Shared Play Benefits**: Rewards for participating with friends, such as bonus excitement points.
+
+### **5.3 User Engagement Strategies**
+
+- **Push Notifications**: Reminders for daily tasks or when the mammoth needs attention.
+- **Email Newsletters**: Updates on new features or upcoming events.
+- **Community Building**: Encourage users to share experiences and creations.
+
+### **5.4 Metrics and KPIs** (GPT added) 
+
+- **Engagement Metrics**: Daily Active Users (DAU), session length.
+- **Monetization Metrics**: Average Revenue Per User (ARPU), conversion rates.
+- **Retention Metrics**: Day 1, Day 7, Day 30 retention rates.
+
+---
+
+## **6. Development Roadmap**
+
+### **6.1 Timeline**
+
+- **Phase 1 **: Concept finalization and initial design.
+- **Phase 2 **: Development of core mechanics (thawing, care tasks).
+- **Phase 3 **: AI art integration and customization features.
+- **Phase 4 **: Develop social features like the polaroid wall and friendship tree.
+- **Phase 5 **: Implement emotional metrics system and additional minigames.
+- **Phase 6 **: Introduce season pass system, seasonal content, and more customization options.
+- **Phase 7 **: Beta testing and feedback incorporation.
+- **Phase 8 **: Official launch and marketing campaigns.
+
+---
+
+## **7. Risks and Mitigations**
+
+### **7.1 Potential Challenges**
+
+#### **Technical Complexity**
+
+- **Risk**: Integrating AI-generated art and emotional metrics seamlessly.
+- **Mitigation**: Allocate additional time for R&D; conduct thorough testing.
+
+#### **Market Competition**
+
+- **Risk**: Standing out in a saturated app market.
+- **Mitigation**: Emphasize unique features; strong marketing efforts; highlight emotional engagement and AI customization.
+
+#### **User Retention**
+
+- **Risk**: Users may lose interest over time.
+- **Mitigation**: Regular updates; new content; engaging community events; implement feedback loops.
+
+#### **Balancing Monetization and User Experience**
+
+- **Risk**: Overemphasis on monetization could deter free-to-play users.
+- **Mitigation**: Ensure core experience is enjoyable for all users; offer additional value through purchases; transparent monetization practices.
+
+#### **Feature Overload**
+
+- **Risk**: Introducing too many features at once could overwhelm users.
+- **Mitigation**: Gradually unlock features through progression; provide clear tutorials; intuitive UI design.
+
+### **7.2 Privacy and Security**
+
+- **Risk**: Expanding auth channels past telegram
+- **Mitigation**: Make authentication model flexible with adding future auth sources.
+
+---
+
+## **8. Conclusion**
+
+### **8.1 Summary**
+
+The Woolly Mammoth Virtual Pet App offers a unique and engaging experience by combining nostalgic virtual pet care with modern AI technology and social features. Users can nurture and personalize their mammoths, engage in daily activities and minigames, and connect with friends through interactive social features. The incorporation of seasonal content, emotional metrics, and extensive customization options enhances user engagement and encourages long-term retention.
+
+### **8.2 Next Steps**
+
+- **Finalize Design Specifications**: Define mechanics, requirements, and UI elements for each feature.
+- **Prototype Development**: Begin building a basic version of the app.
+- **User Testing**: Organize beta testing phases to gather feedback and refine the app before launch.
+- **Develop Marketing Strategy**: Align promotional efforts with development milestones.
+- **Set Up Development Sprints**: Organize the development process into manageable tasks.
+
+---
+
+## **Additional Suggestions and Considerations**
+
+### **Enhancing Care Mechanics**
+
+- **Growth Stages**: Introduce stages (baby, adolescent, adult) that unlock new interactions and content.
+- **Emotional Responses**: Mammoth displays a range of emotions based on care quality, enhancing the bond.
+
+### **Expanding Minigames**
+
+- **Puzzle Games**: Solve puzzles together with the mammoth.
+- **Adventure Quests**: Explore environments to find items or unlock stories.
+
+### **Social Interaction Features**
+
+- **Friend Leaderboards**: Friendly competition on minigame scores.
+- **Cooperative Tasks**: Work with friends to achieve common goals for rewards.
+
+### **Monetization Enhancements**
+
+- **Subscription Model**: Offer a VIP membership with exclusive benefits (e.g., rare items, ad-free experience).
+- **Limited-Time Offers**: Seasonal items or styles available for purchase.
+
+### **User Engagement Strategies**
+
+- **Push Notifications**: Reminders for daily tasks or when the mammoth needs attention.
+- **Email Newsletters**: Updates on new features or upcoming events.
+- **Community Events**: Host in-app events to engage the user base.
+
+### **Questions for Further Development**
+
+- **Content Updates**: How frequently will new content or features be released?
+- **User Feedback**: What mechanisms will be used to gather user feedback post-launch?
+
+---
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTc1NTYyNTI2OF19
+-->

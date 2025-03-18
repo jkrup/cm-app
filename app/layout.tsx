@@ -4,8 +4,8 @@ import './globals.css'
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Woolly Mammoth Pet",
-  description: "Your virtual woolly mammoth companion",
+  title: "Chonky Mammoth",
+  description: "Raise your own Chonky Mammoth companion",
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-background min-h-screen">
+      <body className="min-h-screen">
         <Providers>{children}</Providers>
       </body>
     </html>
