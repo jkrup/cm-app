@@ -86,19 +86,24 @@ const FeedingInteraction: React.FC<FeedingInteractionProps> = ({
       
       // After a delay, show eating animation
       setTimeout(() => {
-        onFeedComplete(); // Update stats
         setFeedingState(FeedingState.EATING);
         
         // After eating, return to normal
         setTimeout(() => {
-          setFeedingState(FeedingState.FINISHED);
+          // Call onFeedComplete first to update stats
+          onFeedComplete();
           
-          // Close the feeding interaction
+          // Then set the FINISHED state after a small delay
           setTimeout(() => {
-            onFeedingEnd();
-            setFeedingState(FeedingState.READY);
-            setFoodPosition({ y: 0 });
-          }, 1000);
+            setFeedingState(FeedingState.FINISHED);
+            
+            // Wait a bit and then call onFeedingEnd as the VERY LAST step
+            // This ensures all our internal state is done changing
+            setTimeout(() => {
+              // Signal to parent that we're completely done with all state changes
+              onFeedingEnd();
+            }, 500);
+          }, 200);
         }, 2000);
       }, 1000);
     } else {
@@ -112,7 +117,7 @@ const FeedingInteraction: React.FC<FeedingInteractionProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 pointer-events-auto flex flex-col items-center justify-center"
+      className="fixed inset-0 z-50 pointer-events-auto flex flex-col items-center justify-center overflow-visible"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -124,14 +129,24 @@ const FeedingInteraction: React.FC<FeedingInteractionProps> = ({
       onMouseUp={handleTouchEnd}
     >
       {/* Mammoth container */}
-      <div className="relative w-64 h-64 flex items-center justify-center">
+      <div className="relative flex items-center justify-center" style={{ height: "80vh" }}>
         {feedingState === FeedingState.REACHING && (
           <Image 
             src={eatingStartImg} 
             alt="Mammoth reaching for food" 
-            width={250} 
-            height={250}
+            width={562} 
+            height={562}
             className="blue-aura"
+            style={{ 
+              width: "auto", 
+              height: "auto", 
+              minWidth: "562px",
+              minHeight: "562px",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)"
+            }}
             priority
           />
         )}
@@ -140,18 +155,28 @@ const FeedingInteraction: React.FC<FeedingInteractionProps> = ({
           <Image 
             src={eatingImg} 
             alt="Mammoth eating" 
-            width={250} 
-            height={250}
+            width={562} 
+            height={562}
             className="blue-aura"
+            style={{ 
+              width: "auto", 
+              height: "auto", 
+              minWidth: "562px",
+              minHeight: "562px",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)"
+            }}
             priority
           />
         )}
         
-        {/* Show mammoth only when in appropriate states */}
+        {/* Show placeholder div only when in appropriate states - removed for EATING state */}
         {(feedingState === FeedingState.READY || 
           feedingState === FeedingState.THROWING || 
           feedingState === FeedingState.FINISHED) && (
-          <div className="w-48 h-48 flex items-center justify-center">
+          <div style={{ width: "562px", height: "562px" }} className="flex items-center justify-center">
             {/* The regular mammoth will show through from behind */}
           </div>
         )}

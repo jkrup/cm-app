@@ -6,93 +6,171 @@ import NavigationBar from './NavigationBar';
 import CircularStats from './CircularStats';
 import FeedingInteraction from './FeedingInteraction';
 import CustomizeModal from './CustomizeModal';
+import ClosetModal from './ClosetModal';
 import { useMammothStore } from '../store/mammothStore';
 import { MAMMOTH_NAME } from '../constants/mammoth';
 import { happyMonkey } from '../fonts/fonts';
 import Image from 'next/image';
+import happyMammothImg from '@/public/mammoth/happy.png';
+import mediumMammothImg from '@/public/mammoth/medium.png';
+import lowMammothImg from '@/public/mammoth/low.png';
+import sadMammothImg from '@/public/mammoth/sad.png';
+import { getMammothMood } from '@/app/utils/getMood';
+import Mammoth from './Mammoth';
+
+// Define costume types
+type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' | 
+                  'bucket' | 'cowboy' | 'pirate' | 'sailor' | 'winter' | 
+                  'wizard' | 'viking';
 
 export default function HomeClient() {
-    const { excitement, happiness, feed, play, groom } = useMammothStore();
-    const [isGrooming, setIsGrooming] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [showCloset, setShowCloset] = useState(false);
     const [isFeeding, setIsFeeding] = useState(false);
+    const [costumeSelection, setCostumeSelection] = useState<CostumeType>(null);
+    const [isGrooming, setIsGrooming] = useState(false);
     const [hideMammothDuringFeeding, setHideMammothDuringFeeding] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
+    
+    // Subscribe to the mammoth store to get the stats
+    const { 
+        hunger, 
+        energy, 
+        boredom, 
+        affection, 
+        feed, 
+        play, 
+        groom, 
+        decreaseStats,
+        getExcitement,
+        getHappiness 
+    } = useMammothStore();
+    
+    // Get the calculated excitement and happiness
+    const excitement = getExcitement();
+    const happiness = getHappiness();
 
-    // Decrease stats over time
+    // Force component update when stats change to ensure we always display current values
+    const [, forceUpdate] = useState({});
+    
+    // Ensure we update UI whenever any store values change
     useEffect(() => {
-        const timer = setInterval(() => {
-            useMammothStore.setState((state) => ({
-                excitement: Math.max(0, state.excitement - 0.5),
-                happiness: Math.max(0, state.happiness - 0.5),
-            }));
-            // }, 10000);
-        }, 10000);
-
-        return () => clearInterval(timer);
+        const unsubscribe = useMammothStore.subscribe(() => {
+            forceUpdate({});
+        });
+        
+        return () => unsubscribe();
     }, []);
 
+    // Set up interval for stat decay over time
+    useEffect(() => {
+        const interval = setInterval(() => {
+            decreaseStats();
+        }, 2000); // Run decay every 2 seconds
+        
+        return () => clearInterval(interval);
+    }, [decreaseStats]);
+
+    // Handle starting the feeding interaction
+    const handleStartFeed = () => {
+        setIsFeeding(true);
+        // Initially show the mammoth during feeding, will hide when animation starts
+        setHideMammothDuringFeeding(false);
+    };
+
+    // Handle feeding animation states
+    const handleFeedingStateChange = (state: 'READY' | 'THROWING' | 'REACHING' | 'EATING' | 'FINISHED') => {
+        if (state === 'REACHING' || state === 'EATING') {
+            // Hide mammoth during both reaching and eating animations
+            setHideMammothDuringFeeding(true);
+        } else if (state === 'FINISHED') {
+            // Show mammoth again when done
+            setHideMammothDuringFeeding(false);
+        }
+    };
+
+    // Handle the completion of feeding
+    const handleFeedingEnd = () => {
+        setIsFeeding(false);
+        setHideMammothDuringFeeding(false);
+    };
+
+    // Handle starting grooming
     const handleStartGroom = () => {
-        console.log('Starting grooming session');
         setIsGrooming(true);
     };
 
+    // Handle completion of grooming
     const handleGroomComplete = () => {
-        console.log('Grooming complete, updating stats');
-        groom();
         setIsGrooming(false);
+        groom();
     };
 
-    const handleStartFeed = () => {
-        // Temporarily increase excitement to show anticipation
-        useMammothStore.setState((state) => ({
-            excitement: Math.min(100, state.excitement + 10)
-        }));
-        setIsFeeding(true);
-    };
-
-    const handleFeedComplete = () => {
-        feed();
-    };
-
-    const handleFeedingEnd = () => {
-        setIsFeeding(false);
-    };
-
-    const handleFeedingStateChange = (state: 'REACHING' | 'EATING' | 'READY' | 'THROWING' | 'FINISHED') => {
-        // Hide mammoth during REACHING and EATING states
-        setHideMammothDuringFeeding(state === 'REACHING' || state === 'EATING');
-    };
-
+    // Handle long press on mammoth
     const handleMammothLongPress = () => {
-        setShowCustomize(true);
+        setShowModal(true);
     };
 
-    // Helper to determine mood text
-    const getMoodText = () => {
-        const avgMood = (excitement + happiness) / 2;
+    // Handle opening the closet
+    const handleOpenCloset = () => {
+        setShowCloset(true);
+    };
 
-        if (isFeeding) return `${MAMMOTH_NAME} is excited for food!`;
-        if (avgMood > 75) return `${MAMMOTH_NAME} is very happy!`;
-        if (avgMood > 50) return `${MAMMOTH_NAME} is content.`;
-        if (avgMood > 25) return `${MAMMOTH_NAME} is a bit bored.`;
-        return `${MAMMOTH_NAME} needs attention!`
+    // Handle costume selection
+    const handleSelectCostume = (costume: CostumeType) => {
+        setCostumeSelection(costume);
+    };
 
+    // Get mammoth expression based on current state
+    const getMammothExpression = () => {
+        return getMammothMood({
+            excitement,
+            happiness,
+            hunger,
+            energy,
+            boredom,
+            affection
+        }).expression;
     };
 
     return (
         <div className="flex flex-col min-h-screen relative pb-16">
-            <StatusBar />
-
+            <StatusBar onOpenCloset={handleOpenCloset} />
+ 
+                {/* Detailed mood stats - shown in a subtle way */}
+                <div className="flex justify-center gap-3 my-2 pt-2">
+                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                        <span className="mr-1">🍗</span>{Math.round(hunger)}%
+                    </div>
+                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                        <span className="mr-1">⚡</span>{Math.round(energy)}%
+                    </div>
+                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                        <span className="mr-1">😴</span>{Math.round(boredom)}%
+                    </div>
+                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                        <span className="mr-1">❤️</span>{Math.round(affection)}%
+                    </div>
+                </div>
             {/* Mood text at bottom */}
             <div className="w-full py-3 text-center">
-                <p className={`text-md text-[#D6ECF0] ${happyMonkey.className}`}>
-                    {getMoodText()}
+                <p className={`px-2 text-md text-[#D6ECF0] ${happyMonkey.className} h-16`}>
+                    {getMammothMood({
+                        excitement,
+                        happiness,
+                        hunger,
+                        energy,
+                        boredom,
+                        affection,
+                        isFeeding
+                    }).text}
                 </p>
+               
             </div>
             <main className="flex-1 flex flex-col">
                 <div className="flex-1 flex flex-col justify-center">
-                    <CircularStats
-                        excitement={excitement}
+                    <CircularStats 
+                        excitement={excitement} 
                         happiness={happiness}
                         isGrooming={isGrooming}
                         onGroomComplete={handleGroomComplete}
@@ -103,9 +181,10 @@ export default function HomeClient() {
                         hideMammothDuringFeeding={hideMammothDuringFeeding}
                         onMammothLongPress={handleMammothLongPress}
                         showMoodText={false}
+                        currentCostume={costumeSelection}
                     />
                 </div>
-
+                
                 {/* Glacier background image */}
                 <div className="absolute bottom-0 left-0 w-full pointer-events-none z-0 overflow-hidden">
                     <Image 
@@ -125,10 +204,11 @@ export default function HomeClient() {
                 </div>
 
                 {isFeeding && (
-                    <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#070F24]/80">
+                    <div className="absolute inset-0 z-40 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#070F24]/80 to-transparent" style={{ backgroundSize: '100% 166.67%' }}></div>
                         <FeedingInteraction
                             isFeeding={isFeeding}
-                            onFeedComplete={handleFeedComplete}
+                            onFeedComplete={feed}
                             onFeedingEnd={handleFeedingEnd}
                             onStateChange={handleFeedingStateChange}
                         />
@@ -173,11 +253,21 @@ export default function HomeClient() {
                     <span className="text-xl">🎮</span>
                 </button>
             </div>
-
-            {showCustomize && (
-                <CustomizeModal
-                    isOpen={showCustomize}
-                    onClose={() => setShowCustomize(false)}
+            
+            {showModal && (
+                <CustomizeModal 
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+            
+            {showCloset && (
+                <ClosetModal 
+                    isOpen={showCloset}
+                    onClose={() => setShowCloset(false)}
+                    currentCostume={costumeSelection}
+                    onSelectCostume={handleSelectCostume}
+                    mammothExpression={getMammothExpression()}
                 />
             )}
 

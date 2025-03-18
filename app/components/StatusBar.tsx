@@ -1,7 +1,11 @@
 // Path: app/components/StatusBar.tsx
 import { MAMMOTH_NAME } from '../constants/mammoth';
 
-export default function StatusBar() {
+interface StatusBarProps {
+  onOpenCloset: () => void;
+}
+
+export default function StatusBar({ onOpenCloset }: StatusBarProps) {
   const level = 5;
   const coins = 250;
 
@@ -18,10 +22,14 @@ export default function StatusBar() {
           }}>{MAMMOTH_NAME}</h1>
           <div className="text-sm text-[#6ECBDC]">Level {level}</div>
         </div>
-        <div className="flex items-center gap-2 bg-[#1A2845] p-2 rounded-full px-3 shadow-inner">
+        <button 
+          onClick={onOpenCloset}
+          className="flex items-center gap-2 bg-[#1A2845] p-2 rounded-full px-3 shadow-inner 
+                    hover:bg-[#1F3258] active:bg-[#1A2845] transition-colors cursor-pointer"
+        >
           <span>💰</span>
           <span className="font-medium text-[#FFD700]">{coins}</span>
-        </div>
+        </button>
       </div>
     </div>
   );
