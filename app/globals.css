@@ -25,19 +25,6 @@
   }
 }
 
-/* Fix iOS keyboard behavior */
-@supports (-webkit-touch-callout: none) {
-  .chat-container {
-    height: -webkit-fill-available;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
-}
-
 html {
   height: -webkit-fill-available;
   overflow: hidden;

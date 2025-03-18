@@ -105,7 +105,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col relative chat-container">
+        <div className="min-h-screen flex flex-col">
             {/* Header */}
             <div className="bg-[#0D1425] shadow-lg border-b border-[#2A3A60]">
                 <div className="max-w-md mx-auto p-4">
@@ -130,7 +130,7 @@ export default function ChatPage() {
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div className="flex-1 overflow-y-auto p-4">
                 <div className="max-w-md mx-auto space-y-4">
                     {messages.length === 0 && !isTyping ? (
                         <div className="text-center py-10">
@@ -173,8 +173,8 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {/* Message Input - Fixed at bottom, won't shift content */}
-            <div className="bg-[#0D1425] border-t border-[#2A3A60] p-4 absolute bottom-0 left-0 right-0 w-full">
+            {/* Message Input */}
+            <div className="bg-[#0D1425] border-t border-[#2A3A60] p-4">
                 <div className="max-w-md mx-auto flex items-center gap-2">
                     <input
                         type="text"
