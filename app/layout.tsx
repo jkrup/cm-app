@@ -43,6 +43,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#020614" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
       <body className="min-h-screen">
         <Providers>{children}</Providers>
