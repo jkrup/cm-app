@@ -42,7 +42,7 @@ export default function FriendshipTreeVisualization({
     const getBranchColor = (level: number) => {
         // From lighter to darker shade as level increases
         const opacity = 0.4 + (level * 0.12);
-        return `rgba(74, 144, 226, ${opacity})`;
+        return `rgba(110, 203, 220, ${opacity})`;
     };
 
     return (
@@ -52,9 +52,10 @@ export default function FriendshipTreeVisualization({
                 <path
                     d="M145,300 Q150,240 150,200 T155,150"
                     fill="none"
-                    stroke="#8B4513"
+                    stroke="#6ECBDC"
                     strokeWidth="10"
                     strokeLinecap="round"
+                    className="drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]"
                 />
 
                 {/* Center of the tree (your mammoth) */}
@@ -62,9 +63,10 @@ export default function FriendshipTreeVisualization({
                     cx={centerX}
                     cy={centerY}
                     r={20}
-                    fill="#FFFFFF"
-                    stroke="#4A90E2"
+                    fill="#1A2845"
+                    stroke="#6ECBDC"
                     strokeWidth="2"
+                    className="drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]"
                 />
 
                 {/* Your mammoth emoji */}
@@ -96,6 +98,7 @@ export default function FriendshipTreeVisualization({
                                 stroke={branchColor}
                                 strokeWidth={branchThickness * 2}
                                 strokeLinecap="round"
+                                className="drop-shadow-[0_0_2px_rgba(110,203,220,0.4)]"
                             />
 
                             {/* Friend circle */}
@@ -103,7 +106,7 @@ export default function FriendshipTreeVisualization({
                                 cx={x}
                                 cy={y}
                                 r={18}
-                                fill="#FFFFFF"
+                                fill="#1A2845"
                                 stroke={branchColor}
                                 strokeWidth="2"
                             />
@@ -124,7 +127,7 @@ export default function FriendshipTreeVisualization({
                                 y={y + 35}
                                 textAnchor="middle"
                                 fontSize="10"
-                                fill="#333333"
+                                fill="#D6ECF0"
                                 fontWeight="bold"
                             >
                                 {friend.name}
@@ -136,7 +139,7 @@ export default function FriendshipTreeVisualization({
                                 y={y - 25}
                                 textAnchor="middle"
                                 fontSize="10"
-                                fill="#4A90E2"
+                                fill="#6ECBDC"
                             >
                                 Level {friend.friendshipLevel}
                             </text>
@@ -145,10 +148,10 @@ export default function FriendshipTreeVisualization({
                 })}
 
                 {/* Leaves or decorations on the tree */}
-                <circle cx={140} cy={140} r={8} fill="#90EE90" />
-                <circle cx={160} cy={160} r={6} fill="#90EE90" />
-                <circle cx={170} cy={135} r={7} fill="#90EE90" />
-                <circle cx={130} cy={170} r={5} fill="#90EE90" />
+                <circle cx={140} cy={140} r={8} fill="#6ECBDC" opacity="0.3" />
+                <circle cx={160} cy={160} r={6} fill="#6ECBDC" opacity="0.4" />
+                <circle cx={170} cy={135} r={7} fill="#6ECBDC" opacity="0.3" />
+                <circle cx={130} cy={170} r={5} fill="#6ECBDC" opacity="0.5" />
             </svg>
         </div>
     );

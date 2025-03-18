@@ -105,24 +105,24 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen flex flex-col">
             {/* Header */}
-            <div className="bg-white shadow">
+            <div className="bg-[#0D1425] shadow-lg border-b border-[#2A3A60]">
                 <div className="max-w-md mx-auto p-4">
                     <div className="flex items-center">
-                        <button
-                            onClick={() => router.back()}
-                            className="text-primary"
+                        <Link
+                            href="/friends"
+                            className="text-[#6ECBDC] hover:text-[#8FE5F5] transition-colors"
                         >
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-6 h-6 drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
-                        </button>
+                        </Link>
                         <div className="flex items-center ml-4">
                             <span className="text-2xl mr-2">{friend?.avatar || '👤'}</span>
                             <div>
-                                <div className="font-bold">{friend?.name || 'Friend'}</div>
-                                <div className="text-xs text-gray-500">{friend?.mammothName || 'Mammoth'}'s owner</div>
+                                <div className="font-bold text-[#D6ECF0]">{friend?.name || 'Friend'}</div>
+                                <div className="text-xs text-[#D6ECF0]/60">{friend?.mammothName || 'Mammoth'}'s owner</div>
                             </div>
                         </div>
                     </div>
@@ -130,13 +130,13 @@ export default function ChatPage() {
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4">
                 <div className="max-w-md mx-auto space-y-4">
                     {messages.length === 0 && !isTyping ? (
                         <div className="text-center py-10">
                             <div className="text-4xl mb-4">💬</div>
-                            <h3 className="text-lg font-medium text-gray-900">No messages yet</h3>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <h3 className="text-lg font-medium text-[#D6ECF0]">No messages yet</h3>
+                            <p className="mt-1 text-sm text-[#D6ECF0]/70">
                                 Say hello to start the conversation!
                             </p>
                         </div>
@@ -149,13 +149,13 @@ export default function ChatPage() {
                                 >
                                     <div
                                         className={`max-w-xs p-3 rounded-lg ${msg.isFromMe
-                                                ? 'bg-primary text-white rounded-br-none'
-                                                : 'bg-white text-gray-800 rounded-bl-none shadow'
+                                                ? 'bg-[#6ECBDC] text-[#070F24] rounded-br-none'
+                                                : 'bg-[#1A2845] text-[#D6ECF0] rounded-bl-none shadow-lg border border-[#2A3A60]'
                                             }`}
                                     >
                                         <div>{msg.content}</div>
                                         <div
-                                            className={`text-xs mt-1 ${msg.isFromMe ? 'text-white/70' : 'text-gray-500'
+                                            className={`text-xs mt-1 ${msg.isFromMe ? 'text-[#070F24]/70' : 'text-[#D6ECF0]/60'
                                                 }`}
                                         >
                                             {formatTime(msg.timestamp)}
@@ -174,7 +174,7 @@ export default function ChatPage() {
             </div>
 
             {/* Message Input */}
-            <div className="bg-white border-t p-4">
+            <div className="bg-[#0D1425] border-t border-[#2A3A60] p-4">
                 <div className="max-w-md mx-auto flex items-center gap-2">
                     <input
                         type="text"
@@ -182,12 +182,12 @@ export default function ChatPage() {
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                         placeholder="Type a message..."
-                        className="flex-1 p-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 p-3 border border-[#2A3A60] rounded-full focus:outline-none focus:ring-2 focus:ring-[#6ECBDC] bg-[#15213A] text-[#D6ECF0]"
                     />
                     <button
                         onClick={handleSendMessage}
                         disabled={!message.trim()}
-                        className="bg-primary text-white p-3 rounded-full disabled:opacity-50"
+                        className="bg-[#6ECBDC] text-[#070F24] p-3 rounded-full disabled:opacity-50 hover:bg-[#8FE5F5] transition-colors"
                     >
                         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path
@@ -199,6 +199,11 @@ export default function ChatPage() {
                         </svg>
                     </button>
                 </div>
+            </div>
+            
+            {/* Night sky effect - match main app */}
+            <div className="fixed inset-0 -z-50 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#070F24]/80 to-transparent"></div>
             </div>
         </div>
     );
