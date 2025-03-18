@@ -1,6 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const CATEGORIES = [
+// Define types for our data structures
+type CategoryId = 'color' | 'outfit' | 'hat' | 'pose';
+
+interface Category {
+    id: CategoryId;
+    label: string;
+    icon: string;
+}
+
+interface WardrobeItem {
+    id: string;
+    label: string;
+    icon: string;
+}
+
+interface Wardrobe {
+    [key: string]: WardrobeItem[];
+}
+
+interface SelectedItems {
+    [key: string]: string | null;
+}
+
+interface CustomizeModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const CATEGORIES: Category[] = [
     { id: 'color', label: 'Color', icon: '🎨' },
     { id: 'outfit', label: 'Outfit', icon: '👔' },
     { id: 'hat', label: 'Hat', icon: '🎩' },
@@ -8,7 +36,7 @@ const CATEGORIES = [
 ];
 
 // Sample wardrobe data
-const WARDROBE = {
+const WARDROBE: Wardrobe = {
     color: [
         { id: 'brown', label: 'Brown', icon: '🟫' },
         { id: 'orange', label: 'Orange', icon: '🟧' },
@@ -31,31 +59,40 @@ const WARDROBE = {
     ],
 };
 
-export default function CustomizeModal({ isOpen, onClose }) {
-    const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
-    const [selectedItems, setSelectedItems] = useState({
+export default function CustomizeModal({ isOpen, onClose }: CustomizeModalProps) {
+    const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0].id);
+    const [selectedItems, setSelectedItems] = useState<SelectedItems>({
         color: 'brown',
         outfit: null,
         hat: null,
         pose: null,
     });
 
-    const touchStartX = useRef(0);
-    const touchEndX = useRef(0);
-    const contentRef = useRef(null);
-    const isDragging = useRef(false);
-    const startTime = useRef(0);
+    const touchStartX = useRef<number>(0);
+    const touchEndX = useRef<number>(0);
+    const contentRef = useRef<HTMLDivElement | null>(null);
+    const isDragging = useRef<boolean>(false);
+    const startTime = useRef<number>(0);
 
-    const handleTouchStart = (e) => {
-        touchStartX.current = e.touches[0].clientX;
+    const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+        if ('touches' in e) {
+            touchStartX.current = e.touches[0].clientX;
+        } else {
+            touchStartX.current = e.clientX;
+        }
         startTime.current = Date.now();
         isDragging.current = true;
     };
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
         if (!isDragging.current) return;
 
-        touchEndX.current = e.touches[0].clientX;
+        if ('touches' in e) {
+            touchEndX.current = e.touches[0].clientX;
+        } else {
+            touchEndX.current = e.clientX;
+        }
+        
         const diff = touchEndX.current - touchStartX.current;
 
         // Add a subtle transform while dragging
@@ -96,7 +133,7 @@ export default function CustomizeModal({ isOpen, onClose }) {
         }
     };
 
-    const handleSelect = (category, itemId) => {
+    const handleSelect = (category: string, itemId: string) => {
         setSelectedItems(prev => ({
             ...prev,
             [category]: prev[category] === itemId ? null : itemId
@@ -130,11 +167,11 @@ export default function CustomizeModal({ isOpen, onClose }) {
                     onTouchEnd={handleTouchEnd}
                     // For desktop testing
                     onMouseDown={(e) => {
-                        handleTouchStart({ touches: [{ clientX: e.clientX }] });
+                        handleTouchStart(e);
                     }}
                     onMouseMove={(e) => {
                         if (isDragging.current) {
-                            handleTouchMove({ touches: [{ clientX: e.clientX }] });
+                            handleTouchMove(e);
                         }
                     }}
                     onMouseUp={handleTouchEnd}
@@ -143,17 +180,17 @@ export default function CustomizeModal({ isOpen, onClose }) {
                     <div className="flex items-center justify-center p-4">
                         <div className="flex-1 text-center">
                             <span className="text-xl mr-2">
-                                {CATEGORIES.find(c => c.id === activeCategory).icon}
+                                {CATEGORIES.find(c => c.id === activeCategory)?.icon || ''}
                             </span>
                             <span className="font-medium">
-                                {CATEGORIES.find(c => c.id === activeCategory).label}
+                                {CATEGORIES.find(c => c.id === activeCategory)?.label || ''}
                             </span>
                         </div>
                     </div>
 
                     {/* Items Grid */}
                     <div className="p-4 grid grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                        {WARDROBE[activeCategory].map((item) => (
+                        {WARDROBE[activeCategory]?.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => handleSelect(activeCategory, item.id)}

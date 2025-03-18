@@ -1,6 +1,11 @@
 // lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
 
+// Declare the global type to include prisma
+declare global {
+    var prisma: PrismaClient | undefined;
+}
+
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === 'production') {

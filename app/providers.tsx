@@ -9,7 +9,7 @@ import { SessionProvider } from "next-auth/react";
 //     return <SessionProvider>{children}</SessionProvider>;
 // }
 
-export function Providers({ children }) {
+export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
 
     return (
