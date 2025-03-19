@@ -1,5 +1,16 @@
 import { create } from 'zustand'
 
+export interface MammothMemoryEntry {
+  activity: 'feed' | 'play' | 'groom';
+  timestamp: Date;
+  previousState: {
+    hunger: number;
+    energy: number;
+    boredom: number;
+    affection: number;
+  };
+}
+
 interface MammothState {
   // Core mood metrics (these are derived from advanced metrics)
   
@@ -12,6 +23,9 @@ interface MammothState {
   // Internal metrics (not directly shown to users)
   _excitement: number  // Base excitement value before calculation
   _happiness: number   // Base happiness value before calculation
+  
+  // Memory log to track activities
+  memoryLog: MammothMemoryEntry[]
   
   // Computed metrics getter functions
   getExcitement: () => number
@@ -36,6 +50,9 @@ export const useMammothStore = create<MammothState>((set, get) => ({
   // Initialize internal base metrics
   _excitement: 50,
   _happiness: 50,
+  
+  // Memory log to track activities
+  memoryLog: [],
   
   // Compute actual display metrics based on all underlying factors
   getExcitement: () => {
@@ -104,11 +121,25 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     const hungerBonus = Math.min(10, (newHunger - state.hunger) / 3);
     const newHappiness = Math.min(100, state._happiness + hungerBonus);
     
+    // Update memory log
+    const newMemoryEntry: MammothMemoryEntry = {
+      activity: 'feed',
+      timestamp: new Date(),
+      previousState: {
+        hunger: state.hunger,
+        energy: state.energy,
+        boredom: state.boredom,
+        affection: state.affection
+      }
+    };
+    const newMemoryLog = [...state.memoryLog, newMemoryEntry];
+    
     return { 
       hunger: newHunger,
       energy: newEnergy,
       _happiness: newHappiness,
-      _excitement: newExcitement
+      _excitement: newExcitement,
+      memoryLog: newMemoryLog
     };
   }),
   
@@ -129,12 +160,26 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     // Playing might increase hunger (using energy)
     const newHunger = Math.max(0, state.hunger - 5);
     
+    // Update memory log
+    const newMemoryEntry: MammothMemoryEntry = {
+      activity: 'play',
+      timestamp: new Date(),
+      previousState: {
+        hunger: state.hunger,
+        energy: state.energy,
+        boredom: state.boredom,
+        affection: state.affection
+      }
+    };
+    const newMemoryLog = [...state.memoryLog, newMemoryEntry];
+    
     return { 
       boredom: newBoredom,
       energy: newEnergy,
       _excitement: newExcitement,
       _happiness: newHappiness,
-      hunger: newHunger
+      hunger: newHunger,
+      memoryLog: newMemoryLog
     };
   }),
   
@@ -155,11 +200,25 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     const affectionBonus = (newAffection - state.affection) / 2.5;
     const newHappiness = Math.min(100, state._happiness + affectionBonus);
     
+    // Update memory log
+    const newMemoryEntry: MammothMemoryEntry = {
+      activity: 'groom',
+      timestamp: new Date(),
+      previousState: {
+        hunger: state.hunger,
+        energy: state.energy,
+        boredom: state.boredom,
+        affection: state.affection
+      }
+    };
+    const newMemoryLog = [...state.memoryLog, newMemoryEntry];
+    
     return { 
       affection: newAffection,
       boredom: newBoredom,
       _excitement: newExcitement,
-      _happiness: newHappiness
+      _happiness: newHappiness,
+      memoryLog: newMemoryLog
     };
   }),
   

@@ -41,7 +41,7 @@ export function getMemoryDescription(entry: MammothMemoryEntry): string {
  */
 export function getOrderedMemoryEntries(): MammothMemoryEntry[] {
   const memoryLog = useMammothStore.getState().memoryLog;
-  return [...memoryLog].sort((a, b) => 
+  return [...memoryLog].sort((a: MammothMemoryEntry, b: MammothMemoryEntry) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 }
@@ -53,8 +53,8 @@ export function getOrderedMemoryEntries(): MammothMemoryEntry[] {
  */
 export function getMemoriesByActivity(activityType: 'feed' | 'play' | 'groom'): MammothMemoryEntry[] {
   const memoryLog = useMammothStore.getState().memoryLog;
-  return memoryLog.filter(entry => entry.activity === activityType)
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  return memoryLog.filter((entry: MammothMemoryEntry) => entry.activity === activityType)
+    .sort((a: MammothMemoryEntry, b: MammothMemoryEntry) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 /**
@@ -68,8 +68,8 @@ export function getMemoriesInTimeRange(startDate: Date, endDate: Date = new Date
   const startTime = startDate.getTime();
   const endTime = endDate.getTime();
   
-  return memoryLog.filter(entry => {
+  return memoryLog.filter((entry: MammothMemoryEntry) => {
     const entryTime = new Date(entry.timestamp).getTime();
     return entryTime >= startTime && entryTime <= endTime;
-  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }).sort((a: MammothMemoryEntry, b: MammothMemoryEntry) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 } 
