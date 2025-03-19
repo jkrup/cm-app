@@ -149,7 +149,7 @@ export default function FriendsPage() {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-md mx-auto p-4">
+            <div className="max-w-md mx-auto p-4 overflow-y-auto max-h-[70vh]">
                 <div className="flex space-x-2 mb-4">
                     <button
                         onClick={() => setActiveTab('friends')}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { happyMonkey } from "../fonts/fonts";
+import { signIn } from "next-auth/react";
 
 export default function Register() {
     const [name, setName] = useState("");
@@ -41,10 +42,23 @@ export default function Register() {
             });
 
             if (res.ok) {
-                router.push("/login");
+                // Auto login after successful registration
+                const signInResult = await signIn("credentials", {
+                    email,
+                    password,
+                    redirect: false,
+                });
+                
+                if (signInResult?.error) {
+                    setError("Registration successful but auto-login failed. Please login manually.");
+                    router.push("/login");
+                } else {
+                    // Redirect to home page after successful login
+                    router.push("/");
+                }
             } else {
                 const data = await res.json();
-                setError(data.message || "Something went wrong");
+                setError(data.message || data.error || "Something went wrong");
             }
         } catch (error) {
             setError("Something went wrong. Please try again.");

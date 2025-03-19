@@ -234,11 +234,16 @@ export default function HomeClient() {
                 <button
                     onClick={handleStartFeed}
                     disabled={isGrooming || isFeeding}
-                    className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center
-                        drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]
-                        hover:bg-gray-50 active:bg-gray-100 hover:scale-110 transition-transform"
+                    className="hover:scale-110 transition-transform"
                 >
-                    <span className="text-2xl">🍎</span>
+                    <Image 
+                        src="/food/pizza.png" 
+                        alt="Food" 
+                        width={64} 
+                        height={64} 
+                        className="filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]"
+                        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}
+                    />
                 </button>
 
                 {/* Play button */}
