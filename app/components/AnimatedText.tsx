@@ -13,171 +13,125 @@ interface AnimatedTextProps {
 export default function AnimatedText({ 
   text, 
   className = '', 
-  speed = 30, 
-  delay = 1200,  // Increased delay before starting
-  holdTime = 5000 // Display for 5 seconds before fading
+  speed = 50, // Increased base speed (higher = slower typing)
+  delay = 600,  // Moderate initial delay
+  holdTime = 12000 // Increased hold time to 8 seconds
 }: AnimatedTextProps) {
   const [displayText, setDisplayText] = useState('');
   const [visible, setVisible] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const prevTextRef = useRef('');
-  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  const [animationComplete, setAnimationComplete] = useState(false);
+  const textRef = useRef('');
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const fadeTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isFirstRender = useRef(true);
-  const animationCompleteRef = useRef(false);
   
-  // Function to get slightly randomized typing speed
-  const getTypingDelay = () => {
-    // Add randomness to make it feel more natural (between 0.8x and 1.3x base speed)
-    const randomFactor = 0.8 + Math.random() * 0.5;
-    return speed * randomFactor;
-  };
-  
-  // Clean up all timers
+  // Clean up function for all timers
   const cleanupTimers = () => {
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-      animationRef.current = null;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
     if (fadeTimerRef.current) {
       clearTimeout(fadeTimerRef.current);
       fadeTimerRef.current = null;
     }
   };
-
-  // Complete current animation immediately
-  const completeCurrentAnimation = () => {
-    if (isAnimating && !animationCompleteRef.current && text) {
-      // Set the full text immediately
-      setDisplayText(text);
-      animationCompleteRef.current = true;
-      setIsAnimating(false);
-    }
+  
+  // Function to get typing delay with slight randomization
+  const getTypingDelay = () => {
+    // Narrower randomization range (90% to 120% of base speed)
+    // This prevents the typing from getting too fast
+    return speed * (0.9 + Math.random() * 0.3);
   };
   
-  // Effect for text animation
+  // Main animation effect
   useEffect(() => {
-    // If there's a text change, immediately complete any in-progress animation
-    if (text !== prevTextRef.current && isAnimating) {
-      completeCurrentAnimation();
-      cleanupTimers();
-    }
-
-    // Only animate on first render if text is provided
-    if (isFirstRender.current && text) {
-      isFirstRender.current = false;
-      prevTextRef.current = text;
-      animationCompleteRef.current = false;
-      
-      // Reset visibility
-      setVisible(true);
-      
-      // Start animation for initial text
-      setIsAnimating(true);
-      animationRef.current = setTimeout(() => {
-        let index = 0;
-        
-        const typeNextChar = () => {
-          if (index < text.length) {
-            setDisplayText(text.substring(0, index + 1));
-            index++;
-            
-            let nextDelay = getTypingDelay();
-            if (text[index - 1] === '.' || text[index - 1] === '!' || text[index - 1] === '?' || text[index - 1] === ',') {
-              nextDelay += speed * 4;
-            }
-            
-            animationRef.current = setTimeout(typeNextChar, nextDelay);
-          } else {
-            // Animation complete
-            setIsAnimating(false);
-            animationCompleteRef.current = true;
-            
-            // Start the hold timer (keep text visible for holdTime)
-            fadeTimerRef.current = setTimeout(() => {
-              if (prevTextRef.current === text) { // Only fade if text hasn't changed
-                setVisible(false);
-              }
-            }, holdTime);
-          }
-        };
-        
-        typeNextChar();
-      }, delay);
-      
-      return cleanupTimers;
-    }
+    // Skip if no text
+    if (!text) return;
     
-    // Check if the text has actually changed and is not empty
-    if (text !== prevTextRef.current && text) {
-      // Clean up any existing timers
+    // If new text has arrived
+    if (text !== textRef.current) {
+      // Update ref
+      textRef.current = text;
+      
+      // Clean up any running timers
       cleanupTimers();
       
       // Reset animation state
-      animationCompleteRef.current = false;
+      setAnimationComplete(false);
       
-      // Reset visibility for new text
+      // Make visible
       setVisible(true);
       
-      // Start animation when text changes
-      setIsAnimating(true);
-      setDisplayText(''); // Clear current text
+      // Reset text
+      setDisplayText('');
       
-      // Save current text as previous for next comparison
-      prevTextRef.current = text;
-      
-      // Initial delay before starting to type
-      animationRef.current = setTimeout(() => {
+      // Start animation after delay
+      timerRef.current = setTimeout(() => {
         let index = 0;
         
-        // Function to type next character with variable timing
         const typeNextChar = () => {
           if (index < text.length) {
-            // Add the next character
+            // Show text up to current index
             setDisplayText(text.substring(0, index + 1));
             index++;
             
-            // Determine delay for next character
+            // Calculate delay for next character
             let nextDelay = getTypingDelay();
             
-            // Add extra pause after punctuation
-            if (text[index - 1] === '.' || text[index - 1] === '!' || text[index - 1] === '?' || text[index - 1] === ',') {
-              nextDelay += speed * 4;
+            // Add pause after punctuation (longer pause)
+            if (text[index - 1] === '.' || text[index - 1] === '!' || 
+                text[index - 1] === '?' || text[index - 1] === ',') {
+              nextDelay += speed * 5; // Increased pause after punctuation
             }
             
-            // Schedule the next character
-            animationRef.current = setTimeout(typeNextChar, nextDelay);
+            // Schedule next character typing
+            timerRef.current = setTimeout(typeNextChar, nextDelay);
           } else {
             // Animation complete
-            setIsAnimating(false);
-            animationCompleteRef.current = true;
+            setAnimationComplete(true);
             
-            // Start the hold timer (keep text visible for holdTime)
+            // Set a longer fade timer
+            if (fadeTimerRef.current) {
+              clearTimeout(fadeTimerRef.current);
+            }
             fadeTimerRef.current = setTimeout(() => {
-              if (prevTextRef.current === text) { // Only fade if text hasn't changed
-                setVisible(false);
-              }
+              setVisible(false);
             }, holdTime);
           }
         };
         
-        // Start the typing animation
+        // Begin typing
         typeNextChar();
-        
       }, delay);
-    } else if (text === prevTextRef.current && !visible) {
-      // If the same text should be shown again, make it visible
-      setVisible(true);
     }
     
-    // Clean up on unmount or text change
+    // Cleanup on unmount or text change
     return cleanupTimers;
-  }, [text, speed, delay, holdTime, isAnimating]);
+  }, [text, speed, delay, holdTime]);
+  
+  // Make sure that when animation is complete, we maintain the hold time
+  useEffect(() => {
+    if (animationComplete && visible) {
+      // Ensure the fade timer is set correctly
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current);
+      }
+      fadeTimerRef.current = setTimeout(() => {
+        setVisible(false);
+      }, holdTime);
+    }
+    
+    return () => {
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current);
+      }
+    };
+  }, [animationComplete, holdTime]);
   
   return (
     <div className={className}>
       <p className={`relative whitespace-pre-line transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-        {displayText}
+        {displayText || '\u00A0'}
       </p>
     </div>
   );
