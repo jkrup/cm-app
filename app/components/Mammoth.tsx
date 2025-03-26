@@ -292,7 +292,7 @@ export default function Mammoth({
             
             {/* Grooming progress indicator */}
             {isGrooming && (
-                <div className="absolute top-0 left-0 right-0 h-2 bg-gray-200 rounded-full overflow-hidden z-20">
+                <div className="absolute top-2 left-10 right-10 h-1 bg-gray-200/50 rounded-full overflow-hidden z-20">
                     <div 
                         className="h-full bg-blue-500 transition-all duration-200"
                         style={{ width: `${(groomingStrokes / requiredStrokes) * 100}%` }}
@@ -344,7 +344,7 @@ export default function Mammoth({
             
             {/* Grooming text indicator */}
             {isGrooming && (
-                <div className="fixed bottom-8 left-0 right-0 text-center text-sm text-blue-200 font-medium">
+                <div className="fixed bottom-28 left-0 right-0 text-center text-sm text-blue-200 font-medium">
                     Click and drag the brush over the mammoth to groom
                 </div>
             )}
