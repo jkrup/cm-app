@@ -52,6 +52,11 @@ export default function Mammoth({
     isFeeding = false
 }: MammothProps) {
     const [groomingStrokes, setGroomingStrokes] = useState(0);
+    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+    const [isBrushActive, setIsBrushActive] = useState(false);
+    const [isBrushOverMammoth, setIsBrushOverMammoth] = useState(false);
+    const [showCursorBrush, setShowCursorBrush] = useState(false);
+    const mammothRef = useRef<HTMLDivElement>(null);
     const longPressTimer = useRef<NodeJS.Timeout | null>(null);
     const requiredStrokes = 5;
     
@@ -80,6 +85,50 @@ export default function Mammoth({
         
         return () => unsubscribe();
     }, []);
+
+    // Set up mouse move event listener for cursor brush
+    useEffect(() => {
+        if (isGrooming) {
+            setShowCursorBrush(false);
+            const handleMouseMove = (e: MouseEvent) => {
+                setCursorPosition({ x: e.clientX, y: e.clientY });
+                setShowCursorBrush(true);
+            };
+            
+            const handleTouchMove = (e: TouchEvent) => {
+                if (e.touches.length > 0) {
+                    setCursorPosition({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+                    setShowCursorBrush(true);
+                }
+            };
+            
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('touchmove', handleTouchMove);
+            
+            return () => {
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('touchmove', handleTouchMove);
+            };
+        } else {
+            setShowCursorBrush(false);
+            setGroomingStrokes(0);
+            setIsBrushActive(false);
+            setIsBrushOverMammoth(false);
+        }
+    }, [isGrooming]);
+
+    // Effect to add a CSS class to the body when grooming is active
+    useEffect(() => {
+        if (isGrooming) {
+            document.body.classList.add('cursor-none');
+        } else {
+            document.body.classList.remove('cursor-none');
+        }
+        
+        return () => {
+            document.body.classList.remove('cursor-none');
+        };
+    }, [isGrooming]);
 
     const mood = getMammothMood({
         excitement, 
@@ -133,21 +182,50 @@ export default function Mammoth({
         return mood.bounceAnimation;
     };
 
-    const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
-        if (isGrooming) {
-            // Log for debugging
-            console.log('Grooming stroke detected!', isGrooming);
-            
-            // Prevent default behavior to avoid scrolling
-            e.preventDefault();
-            
-            // Increment grooming strokes
+    // Check if brush cursor is over mammoth
+    const checkBrushOverMammoth = () => {
+        if (!mammothRef.current) return false;
+        
+        const mammothRect = mammothRef.current.getBoundingClientRect();
+        
+        // Check if cursor position overlaps with mammoth
+        return (
+            cursorPosition.x >= mammothRect.left && 
+            cursorPosition.x <= mammothRect.right && 
+            cursorPosition.y >= mammothRect.top && 
+            cursorPosition.y <= mammothRect.bottom
+        );
+    };
+
+    const handleBrushStart = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isGrooming) {
+            // Handle long press if not in grooming mode
+            longPressTimer.current = setTimeout(() => {
+                onLongPress();
+            }, 500);
+            return;
+        }
+        
+        // Prevent default behavior
+        e.preventDefault();
+        
+        // Set brush as active (being clicked/pressed)
+        setIsBrushActive(true);
+        
+        // Check if brush is over mammoth
+        const isOver = checkBrushOverMammoth();
+        setIsBrushOverMammoth(isOver);
+        
+        // If brush is over mammoth, increment stroke count
+        if (isOver) {
             setGroomingStrokes(prev => {
                 const newStrokes = prev + 1;
                 console.log(`Grooming strokes: ${newStrokes}/${requiredStrokes}`);
                 if (newStrokes >= requiredStrokes) {
                     console.log('Grooming complete!');
-                    onGroomComplete();
+                    setTimeout(() => {
+                        onGroomComplete();
+                    }, 300);
                     return 0;
                 }
                 return newStrokes;
@@ -155,15 +233,38 @@ export default function Mammoth({
         }
     };
 
-    const handleTouchStart = () => {
-        console.log('Touch start event');
-        longPressTimer.current = setTimeout(() => {
-            onLongPress();
-        }, 500); // 500ms for long press
+    const handleBrushMove = (e: React.MouseEvent | React.TouchEvent) => {
+        if (!isGrooming || !isBrushActive) return;
+        
+        e.preventDefault();
+        
+        // Check if brush is over mammoth
+        const isOver = checkBrushOverMammoth();
+        
+        // If brush just moved over mammoth, increment stroke count
+        if (isOver && !isBrushOverMammoth) {
+            setGroomingStrokes(prev => {
+                const newStrokes = prev + 1;
+                console.log(`Grooming strokes: ${newStrokes}/${requiredStrokes}`);
+                if (newStrokes >= requiredStrokes) {
+                    console.log('Grooming complete!');
+                    setTimeout(() => {
+                        onGroomComplete();
+                    }, 300);
+                    return 0;
+                }
+                return newStrokes;
+            });
+        }
+        
+        // Update brush over mammoth state
+        setIsBrushOverMammoth(isOver);
     };
 
-    const handleTouchEnd = () => {
-        console.log('Touch end event');
+    const handleBrushEnd = () => {
+        setIsBrushActive(false);
+        setIsBrushOverMammoth(false);
+        
         if (longPressTimer.current) {
             clearTimeout(longPressTimer.current);
         }
@@ -171,22 +272,15 @@ export default function Mammoth({
 
     return (
         <div 
-            className={`absolute flex items-center justify-center ${isGrooming ? 'cursor-move' : 'cursor-pointer'}`}
-            onTouchMove={handleTouchMove}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleTouchStart}
-            onMouseUp={handleTouchEnd}
-            onMouseLeave={handleTouchEnd}
-            onMouseMove={(e) => {
-                // Log mouse movement during grooming
-                if (isGrooming) {
-                    console.log('Mouse move during grooming');
-                }
-                if (e.buttons === 1 || isGrooming) {
-                    handleTouchMove(e);
-                }
-            }}
+            className="absolute flex items-center justify-center"
+            onMouseDown={handleBrushStart}
+            onMouseUp={handleBrushEnd}
+            onMouseLeave={handleBrushEnd}
+            onMouseMove={handleBrushMove}
+            onTouchStart={handleBrushStart}
+            onTouchEnd={handleBrushEnd}
+            onTouchMove={handleBrushMove}
+            ref={mammothRef}
         >
             {/* Blue aura behind the mammoth */}
             {/* <div className="blue-aura absolute"></div> */}
@@ -211,8 +305,6 @@ export default function Mammoth({
                 <Image 
                     src={getExpression()} 
                     alt="Your pet mammoth" 
-                    // width={140} 
-                    // height={140}
                     priority
                 />
                 
@@ -229,12 +321,44 @@ export default function Mammoth({
                 )}
             </div>
             
-            {/* Grooming text indicator */}
-            {isGrooming && (
-                <div className="absolute bottom-0 text-center text-sm text-blue-200 font-medium">
-                    Groom by moving your cursor/finger over the mammoth
+            {/* Cursor brush for grooming */}
+            {isGrooming && showCursorBrush && (
+                <div 
+                    className="fixed z-50 pointer-events-none"
+                    style={{
+                        left: `${cursorPosition.x}px`,
+                        top: `${cursorPosition.y}px`,
+                        transform: 'translate(-50%, -50%)'
+                    }}
+                >
+                    <div 
+                        className={`w-40 h-40 flex items-center justify-center 
+                            ${isBrushActive ? 'scale-90' : 'scale-100'} 
+                            ${isBrushOverMammoth && isBrushActive ? 'text-amber-500' : 'text-white'} 
+                            transition-all duration-100`}
+                    >
+                        <span className="text-5xl drop-shadow-lg" style={{ transform: 'rotate(-45deg)' }}>🧹</span>
+                    </div>
                 </div>
             )}
+            
+            {/* Grooming text indicator */}
+            {isGrooming && (
+                <div className="fixed bottom-8 left-0 right-0 text-center text-sm text-blue-200 font-medium">
+                    Click and drag the brush over the mammoth to groom
+                </div>
+            )}
+            
+            {/* Add global style for hiding cursor */}
+            <style jsx global>{`
+                .cursor-none {
+                    cursor: none !important;
+                }
+                
+                .cursor-none * {
+                    cursor: none !important;
+                }
+            `}</style>
         </div>
     );
 }

@@ -17,6 +17,7 @@ import lowMammothImg from '@/public/mammoth/low.png';
 import sadMammothImg from '@/public/mammoth/sad.png';
 import { getMammothMood } from '@/app/utils/getMood';
 import Mammoth from './Mammoth';
+import AnimatedText from './AnimatedText';
 
 // Define costume types
 type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' | 
@@ -154,8 +155,8 @@ export default function HomeClient() {
                 </div>
             {/* Mood text at bottom */}
             <div className="w-full py-3 text-center">
-                <p className={`px-2 text-md text-[#D6ECF0] ${happyMonkey.className} h-16`}>
-                    {getMammothMood({
+                <AnimatedText 
+                    text={getMammothMood({
                         excitement,
                         happiness,
                         hunger,
@@ -163,9 +164,9 @@ export default function HomeClient() {
                         boredom,
                         affection,
                         isFeeding
-                    }).text}
-                </p>
-               
+                    }).text} 
+                    className={`px-2 text-md text-[#D6ECF0] ${happyMonkey.className} h-16`}
+                />
             </div>
             <main className="flex-1 flex flex-col">
                 <div className="flex-1 flex flex-col justify-center">
@@ -222,12 +223,11 @@ export default function HomeClient() {
                 <button
                     onClick={() => handleStartGroom()}
                     disabled={isGrooming || isFeeding}
-                    style={{ transform: 'translate(245px, -125px)'}}
                     className={`w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center
                         drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]
                         ${isGrooming ? 'bg-primary/10' : 'hover:bg-gray-50 active:bg-gray-100 hover:scale-110 transition-transform'}`}
                 >
-                    <span className="text-xl">🪮</span>
+                    {!isGrooming && <span className="text-xl">🪮</span>}
                 </button>
 
                 {/* Feed button */}
@@ -250,7 +250,6 @@ export default function HomeClient() {
                 <button
                     onClick={play}
                     disabled={isGrooming || isFeeding}
-                    style={{ transform: 'translate(-7px, -80px)'}}
                     className={`w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center
                         drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]
                         hover:bg-gray-50 active:bg-gray-100 hover:scale-110 transition-transform`}
