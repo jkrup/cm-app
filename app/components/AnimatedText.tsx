@@ -13,7 +13,7 @@ interface AnimatedTextProps {
 export default function AnimatedText({ 
   text, 
   className = '', 
-  speed = 50, // Increased base speed (higher = slower typing)
+  speed = 55, // Increased base speed (higher = slower typing)
   delay = 600,  // Moderate initial delay
   holdTime = 12000 // Increased hold time to 8 seconds
 }: AnimatedTextProps) {
