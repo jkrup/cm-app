@@ -97,7 +97,7 @@ export default function TruffleGift({
             className={`text-lg text-[#D6ECF0] mb-4 ${happyMonkey.className}`}
             speed={40}
             delay={300}
-            holdTime={20000} 
+            permanentDisplay={true}
           />
           
           <div className={`relative w-32 h-32 mx-auto my-4 transition-all duration-1000 transform

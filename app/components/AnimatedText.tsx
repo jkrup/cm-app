@@ -8,6 +8,7 @@ interface AnimatedTextProps {
   speed?: number; // Base speed in ms per character
   delay?: number; // initial delay before starting
   holdTime?: number; // how long to display the text before fading out
+  permanentDisplay?: boolean; // If true, text will stay visible indefinitely
 }
 
 export default function AnimatedText({ 
@@ -15,7 +16,8 @@ export default function AnimatedText({
   className = '', 
   speed = 55, // Base speed in ms per character
   delay = 600,  // Initial delay
-  holdTime = 12000 // Hold time AFTER typing completes
+  holdTime = 12000, // Hold time AFTER typing completes
+  permanentDisplay = false // Default to fading out after holdTime
 }: AnimatedTextProps) {
   const [displayText, setDisplayText] = useState('');
   const [visible, setVisible] = useState(true);
@@ -91,29 +93,32 @@ export default function AnimatedText({
             timerRef.current = null;
           }
           
-          console.log(`AnimatedText: Typing complete, holding for ${holdTime}ms`);
+          console.log(`AnimatedText: Typing complete, staying ${permanentDisplay ? 'permanently visible' : 'visible for ' + holdTime + 'ms'}`);
           
           // Set animation complete flag
           setAnimationComplete(true);
           
-          // Start countdown timer for debugging
-          setRemainingHoldTime(holdTime);
-          holdTimerRef.current = setInterval(() => {
-            setRemainingHoldTime(prev => {
-              const newValue = Math.max(0, prev - 1000);
-              if (newValue <= 0 && holdTimerRef.current) {
-                clearInterval(holdTimerRef.current);
-                holdTimerRef.current = null;
-              }
-              return newValue;
-            });
-          }, 1000);
-          
-          // Set a timer to fade out AFTER the hold time
-          fadeTimerRef.current = setTimeout(() => {
-            console.log(`AnimatedText: Hold time complete, fading out`);
-            setVisible(false);
-          }, holdTime);
+          // Only set up countdown and fade timers if not permanent display
+          if (!permanentDisplay) {
+            // Start countdown timer for debugging
+            setRemainingHoldTime(holdTime);
+            holdTimerRef.current = setInterval(() => {
+              setRemainingHoldTime(prev => {
+                const newValue = Math.max(0, prev - 1000);
+                if (newValue <= 0 && holdTimerRef.current) {
+                  clearInterval(holdTimerRef.current);
+                  holdTimerRef.current = null;
+                }
+                return newValue;
+              });
+            }, 1000);
+            
+            // Set a timer to fade out AFTER the hold time
+            fadeTimerRef.current = setTimeout(() => {
+              console.log(`AnimatedText: Hold time complete, fading out`);
+              setVisible(false);
+            }, holdTime);
+          }
         }
       };
       
@@ -126,7 +131,7 @@ export default function AnimatedText({
       console.log(`AnimatedText: Cleaning up timers due to text change or unmount`);
       cleanupTimers();
     };
-  }, [text, speed, delay, holdTime]);
+  }, [text, speed, delay, holdTime, permanentDisplay]);
   
   return (
     <div className={className}>
@@ -136,7 +141,9 @@ export default function AnimatedText({
         {process.env.NODE_ENV === 'development' && (
           <span className="absolute -top-4 right-0 text-xs opacity-50 whitespace-nowrap">
             {animationComplete 
-              ? `Hold: ${Math.ceil(remainingHoldTime/1000)}s` 
+              ? permanentDisplay 
+                ? "Permanent" 
+                : `Hold: ${Math.ceil(remainingHoldTime/1000)}s`
               : `Type: ${Math.round((displayText.length / (text?.length || 1)) * 100)}%`}
           </span>
         )}
