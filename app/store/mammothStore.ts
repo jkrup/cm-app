@@ -27,6 +27,11 @@ interface MammothState {
   // Memory log to track activities
   memoryLog: MammothMemoryEntry[]
   
+  // Truffle gift mechanic
+  canGiveTruffle: boolean    // Whether conditions are met for the mammoth to give a truffle
+  isShowingTruffle: boolean  // Whether the truffle gift is currently being shown
+  lastTruffleTime: number    // Timestamp of when the last truffle was given (to limit frequency)
+  
   // Computed metrics getter functions
   getExcitement: () => number
   getHappiness: () => number
@@ -38,6 +43,11 @@ interface MammothState {
   
   // Time-based stat decay function
   decreaseStats: () => void
+  
+  // Truffle related functions
+  checkTruffleConditions: () => void  // Check if the mammoth should give a truffle
+  acceptTruffle: () => void           // Handle when the user accepts a truffle
+  setIsShowingTruffle: (isShowing: boolean) => void // Control the truffle gift UI
 }
 
 export const useMammothStore = create<MammothState>((set, get) => ({
@@ -53,6 +63,11 @@ export const useMammothStore = create<MammothState>((set, get) => ({
   
   // Memory log to track activities
   memoryLog: [],
+  
+  // Truffle gift mechanic
+  canGiveTruffle: false,
+  isShowingTruffle: false,
+  lastTruffleTime: 0,
   
   // Compute actual display metrics based on all underlying factors
   getExcitement: () => {
@@ -104,21 +119,11 @@ export const useMammothStore = create<MammothState>((set, get) => ({
   },
   
   feed: () => set((state) => {
-    // Feeding reduces hunger and slightly increases happiness
-    const newHunger = Math.max(0, Math.min(100, state.hunger + 30));
+    // Feeding increases hunger (fullness)
+    const newHunger = Math.min(100, state.hunger + 40);
     
-    // Feeding can affect energy differently based on current energy levels
-    // If energy is low, food gives a boost; if already high, makes a bit sleepy
-    const energyChange = state.energy < 40 ? 10 : -5;
-    const newEnergy = Math.max(0, Math.min(100, state.energy + energyChange));
-    
-    // Calculate how this action affects the base metrics
-    // More excited if was very hungry
-    const excitementBoost = state.hunger < 20 ? 15 : 5;
-    const newExcitement = Math.min(100, state._excitement + excitementBoost);
-    
-    // Happiness boost depends on how hungry the mammoth was
-    const hungerBonus = Math.min(10, (newHunger - state.hunger) / 3);
+    // Feeding increases happiness modestly
+    const hungerBonus = Math.min(15, (newHunger - state.hunger) / 3);
     const newHappiness = Math.min(100, state._happiness + hungerBonus);
     
     // Update memory log
@@ -135,10 +140,8 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     const newMemoryLog = [...state.memoryLog, newMemoryEntry];
     
     return { 
-      hunger: newHunger,
-      energy: newEnergy,
+      hunger: newHunger, 
       _happiness: newHappiness,
-      _excitement: newExcitement,
       memoryLog: newMemoryLog
     };
   }),
@@ -173,14 +176,20 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     };
     const newMemoryLog = [...state.memoryLog, newMemoryEntry];
     
-    return { 
-      boredom: newBoredom,
-      energy: newEnergy,
-      _excitement: newExcitement,
-      _happiness: newHappiness,
-      hunger: newHunger,
-      memoryLog: newMemoryLog
+    // Return the updated state
+    const updatedState = { 
+      boredom: newBoredom, 
+      energy: newEnergy, 
+      _excitement: newExcitement, 
+      _happiness: newHappiness, 
+      hunger: newHunger, 
+      memoryLog: newMemoryLog 
     };
+    
+    // Check truffle conditions after updating state
+    setTimeout(() => get().checkTruffleConditions(), 0);
+    
+    return updatedState;
   }),
   
   groom: () => set((state) => {
@@ -213,34 +222,116 @@ export const useMammothStore = create<MammothState>((set, get) => ({
     };
     const newMemoryLog = [...state.memoryLog, newMemoryEntry];
     
+    // Return the updated state
+    const updatedState = { 
+      affection: newAffection, 
+      boredom: newBoredom, 
+      _excitement: newExcitement, 
+      _happiness: newHappiness, 
+      memoryLog: newMemoryLog 
+    };
+    
+    // Check truffle conditions after updating state
+    setTimeout(() => get().checkTruffleConditions(), 0);
+    
+    return updatedState;
+  }),
+  
+  decreaseStats: () => set((state) => {
+    // Gradually decrease stats over time
+    // This creates the need for regular interaction
+    
+    // Only decrease if we're not showing the truffle
+    if (state.isShowingTruffle) return {};
+    
+    // Hunger decreases slowly
+    const newHunger = Math.max(0, state.hunger - 0.5);
+    
+    // Energy and excitement regenerate slowly if very low, otherwise decrease slightly
+    let newEnergy = state.energy;
+    if (state.energy < 10) newEnergy += 0.3;
+    else newEnergy = Math.max(0, state.energy - 0.3);
+    
+    let newExcitement = state._excitement;
+    if (state._excitement < 10) newExcitement += 0.2;
+    else newExcitement = Math.max(0, state._excitement - 0.2);
+    
+    // Boredom increases over time
+    const newBoredom = Math.min(100, state.boredom + 0.5);
+    
+    // Affection decreases slowly
+    const newAffection = Math.max(0, state.affection - 0.2);
+    
+    // Happiness decreases slowly
+    const newHappiness = Math.max(0, state._happiness - 0.2);
+    
+    // Random chance to check truffle conditions
+    if (Math.random() < 0.1) { // 10% chance
+      setTimeout(() => get().checkTruffleConditions(), 0);
+    }
+    
     return { 
-      affection: newAffection,
-      boredom: newBoredom,
+      hunger: newHunger, 
+      energy: newEnergy,
       _excitement: newExcitement,
-      _happiness: newHappiness,
-      memoryLog: newMemoryLog
+      boredom: newBoredom,
+      affection: newAffection,
+      _happiness: newHappiness
     };
   }),
   
-  // Time-based stat decay
-  decreaseStats: () => set((state) => {
-    // Each stat decays at a different rate
-    const newHunger = Math.max(0, state.hunger - 0.8);        // Gets hungry faster
-    const newEnergy = Math.max(0, state.energy - 0.4);        // Loses energy slowly
-    const newBoredom = Math.min(100, state.boredom + 1.0);    // Gets bored faster
-    const newAffection = Math.max(0, state.affection - 0.3);  // Affection fades slowly
+  // Check if the mammoth should give a truffle
+  checkTruffleConditions: () => set((state) => {
+    // Early exit if already showing or giving a truffle
+    if (state.isShowingTruffle || state.canGiveTruffle) return {};
     
-    // Apply base decay to internal metrics
-    const newBaseExcitement = Math.max(0, state._excitement - 0.5);
-    const newBaseHappiness = Math.max(0, state._happiness - 0.5);
+    // Get current values
+    const happiness = get().getHappiness();
+    const excitement = get().getExcitement();
+    const currentTime = Date.now();
     
+    // Don't give truffles too frequently (minimum 10 minutes apart)
+    const truffleTimeThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
+    if (currentTime - state.lastTruffleTime < truffleTimeThreshold) return {};
+    
+    // Calculate the chance of giving a truffle based on how happy the mammoth is
+    // Higher happiness = higher chance
+    let truffleChance = 0;
+    
+    // The mammoth must be both happy and excited to give a truffle
+    if (happiness > 85 && excitement > 80) {
+      truffleChance = 0.6; // 60% chance when very happy
+    } else if (happiness > 75 && excitement > 70) {
+      truffleChance = 0.3; // 30% chance when pretty happy
+    } else if (happiness > 65 && excitement > 60) {
+      truffleChance = 0.1; // 10% chance when somewhat happy
+    }
+    
+    // Slightly increase chance based on affection level
+    truffleChance += (state.affection / 500); // Adds up to 0.2 (20%) at max affection
+    
+    // Random roll to see if we should give a truffle
+    const shouldGiveTruffle = Math.random() < truffleChance;
+    
+    if (shouldGiveTruffle) {
+      return { canGiveTruffle: true };
+    }
+    
+    return {};
+  }),
+  
+  // Handle accepting the truffle gift
+  acceptTruffle: () => set((state) => {
+    // Reset truffle states
     return {
-      hunger: newHunger,
-      energy: newEnergy,
-      boredom: newBoredom,
-      affection: newAffection,
-      _happiness: newBaseHappiness,
-      _excitement: newBaseExcitement
+      canGiveTruffle: false,
+      isShowingTruffle: false,
+      lastTruffleTime: Date.now(),
+      // Give a little happiness boost as a reward
+      _happiness: Math.min(100, state._happiness + 5)
     };
   }),
-}))
+  
+  // Control the truffle UI visibility
+  setIsShowingTruffle: (isShowing) => set({ isShowingTruffle: isShowing })
+}));

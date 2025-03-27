@@ -18,6 +18,7 @@ import sadMammothImg from '@/public/mammoth/sad.png';
 import { getMammothMood } from '@/app/utils/getMood';
 import Mammoth from './Mammoth';
 import AnimatedText from './AnimatedText';
+import TruffleGift from './TruffleGift';
 
 // Define costume types
 type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' | 
@@ -44,7 +45,12 @@ export default function HomeClient() {
         groom, 
         decreaseStats,
         getExcitement,
-        getHappiness 
+        getHappiness,
+        canGiveTruffle,
+        isShowingTruffle,
+        checkTruffleConditions,
+        acceptTruffle,
+        setIsShowingTruffle
     } = useMammothStore();
     
     // Get the calculated excitement and happiness
@@ -67,10 +73,25 @@ export default function HomeClient() {
     useEffect(() => {
         const interval = setInterval(() => {
             decreaseStats();
+            // The store now handles truffle checks internally
         }, 2000); // Run decay every 2 seconds
         
         return () => clearInterval(interval);
     }, [decreaseStats]);
+    
+    // Effect to check for truffle gift conditions after interactions
+    useEffect(() => {
+        // Check if conditions are met for truffle
+        if (canGiveTruffle && !isShowingTruffle && !isFeeding && !isGrooming) {
+            // Show the truffle with a random delay to make it feel natural
+            const randomDelay = 1000 + Math.random() * 3000; // 1 to 4 seconds delay
+            const timer = setTimeout(() => {
+                setIsShowingTruffle(true);
+            }, randomDelay);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [canGiveTruffle, isShowingTruffle, isFeeding, isGrooming, setIsShowingTruffle]);
 
     // Handle starting the feeding interaction
     const handleStartFeed = () => {
@@ -134,6 +155,11 @@ export default function HomeClient() {
         }).expression;
     };
 
+    // Handle when the user accepts the truffle gift
+    const handleAcceptTruffle = () => {
+        acceptTruffle();
+    };
+
     return (
         <div className="flex flex-col min-h-screen relative pb-16">
             <StatusBar onOpenCloset={handleOpenCloset} />
@@ -171,18 +197,25 @@ export default function HomeClient() {
             <main className="flex-1 flex flex-col">
                 <div className="flex-1 flex flex-col justify-center">
                     <CircularStats 
-                        excitement={excitement} 
+                        excitement={excitement}
                         happiness={happiness}
                         isGrooming={isGrooming}
-                        onGroomComplete={handleGroomComplete}
+                        onGroomComplete={() => {
+                            setIsGrooming(false);
+                            groom();
+                            // Store now checks for truffle opportunity internally
+                        }}
                         onFeedClick={handleStartFeed}
-                        onGroomClick={handleStartGroom}
-                        onPlayClick={play}
+                        onGroomClick={() => setIsGrooming(true)}
+                        onPlayClick={() => {
+                            play();
+                            // Store now checks for truffle opportunity internally
+                        }}
+                        onMammothLongPress={() => setShowCustomize(true)}
                         isFeeding={isFeeding}
                         hideMammothDuringFeeding={hideMammothDuringFeeding}
-                        onMammothLongPress={handleMammothLongPress}
-                        showMoodText={false}
                         currentCostume={costumeSelection}
+                        showMoodText={false}
                     />
                 </div>
                 
@@ -209,9 +242,22 @@ export default function HomeClient() {
                         <div className="absolute inset-0 bg-gradient-to-t from-[#070F24]/80 to-transparent" style={{ backgroundSize: '100% 166.67%' }}></div>
                         <FeedingInteraction
                             isFeeding={isFeeding}
-                            onFeedComplete={feed}
-                            onFeedingEnd={handleFeedingEnd}
-                            onStateChange={handleFeedingStateChange}
+                            onFeedComplete={() => {
+                                feed();
+                                // Store now checks for truffle opportunity internally
+                            }}
+                            onFeedingEnd={() => {
+                                setIsFeeding(false);
+                                setHideMammothDuringFeeding(false);
+                            }}
+                            onStateChange={(state) => {
+                                // Hide mammoth during certain feeding animation states
+                                if (state === 'REACHING' || state === 'EATING') {
+                                    setHideMammothDuringFeeding(true);
+                                } else {
+                                    setHideMammothDuringFeeding(false);
+                                }
+                            }}
                         />
                     </div>
                 )}
@@ -279,6 +325,12 @@ export default function HomeClient() {
             <div className="hidden">
                 <NavigationBar />
             </div>
+
+            {/* Truffle Gift Modal */}
+            <TruffleGift 
+                isVisible={isShowingTruffle}
+                onAccept={handleAcceptTruffle}
+            />
         </div>
     );
 }
