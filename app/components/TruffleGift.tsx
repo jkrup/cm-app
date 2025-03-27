@@ -19,6 +19,7 @@ export default function TruffleGift({
 }: TruffleGiftProps) {
   const [animateExit, setAnimateExit] = useState(false);
   const [showTruffle, setShowTruffle] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   
   // Happy messages for when the mammoth gives a truffle
   const happyMessages = [
@@ -28,11 +29,26 @@ export default function TruffleGift({
     `${MAMMOTH_NAME} is so grateful for your care, she's giving you this truffle!`
   ];
   
-  // Choose a random message
-  const randomMessage = happyMessages[Math.floor(Math.random() * happyMessages.length)];
+  // Generate a message when the component becomes visible
+  useEffect(() => {
+    if (isVisible && !message) {
+      console.log("TruffleGift: Generating new message");
+      const randomMessage = happyMessages[Math.floor(Math.random() * happyMessages.length)];
+      console.log(`TruffleGift: Selected message - "${randomMessage}"`);
+      setMessage(randomMessage);
+    } else if (!isVisible && message) {
+      // Reset message when component is hidden
+      console.log("TruffleGift: Resetting message (not visible)");
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, happyMessages, message]);
   
   useEffect(() => {
     if (isVisible) {
+      console.log("TruffleGift: Component is visible, revealing truffle");
       // Delay showing the truffle to create a reveal effect
       const timer = setTimeout(() => {
         setShowTruffle(true);
@@ -40,11 +56,13 @@ export default function TruffleGift({
       
       return () => clearTimeout(timer);
     } else {
+      console.log("TruffleGift: Component is hidden, hiding truffle");
       setShowTruffle(false);
     }
   }, [isVisible]);
   
   const handleAccept = () => {
+    console.log("TruffleGift: Accept button clicked");
     setAnimateExit(true);
     
     // Allow time for exit animation
@@ -57,7 +75,13 @@ export default function TruffleGift({
     }, 500);
   };
   
-  if (!isVisible) return null;
+  // If not visible or no message yet, don't render
+  if (!isVisible || !message) {
+    console.log("TruffleGift: Not rendering - isVisible:", isVisible, "message:", !!message);
+    return null;
+  }
+  
+  console.log("TruffleGift: Rendering with message:", message?.substring(0, 20) + "...");
   
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 ${animateExit ? 'opacity-0' : 'opacity-100'}`}>
@@ -69,11 +93,11 @@ export default function TruffleGift({
         
         <div className="text-center">
           <AnimatedText
-            text={randomMessage}
+            text={message}
             className={`text-lg text-[#D6ECF0] mb-4 ${happyMonkey.className}`}
             speed={40}
             delay={300}
-            holdTime={10000}
+            holdTime={20000} 
           />
           
           <div className={`relative w-32 h-32 mx-auto my-4 transition-all duration-1000 transform

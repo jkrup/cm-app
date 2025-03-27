@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import StatusBar from './StatusBar';
 import NavigationBar from './NavigationBar';
 import CircularStats from './CircularStats';
@@ -33,6 +33,10 @@ export default function HomeClient() {
     const [isGrooming, setIsGrooming] = useState(false);
     const [hideMammothDuringFeeding, setHideMammothDuringFeeding] = useState(false);
     const [showCustomize, setShowCustomize] = useState(false);
+    
+    // Use state instead of ref for mood text to ensure proper rendering
+    const [currentMoodText, setCurrentMoodText] = useState<string>('');
+    const [moodTextKey, setMoodTextKey] = useState<number>(0);
     
     // Subscribe to the mammoth store to get the stats
     const { 
@@ -68,6 +72,68 @@ export default function HomeClient() {
         
         return () => unsubscribe();
     }, []);
+
+    // Control when the mood text should update
+    useEffect(() => {
+        // Only update the mood text occasionally to prevent it from changing too frequently
+        // This prevents the AnimatedText from constantly restarting
+        const updateMoodTextInterval = setInterval(() => {
+            const newMoodText = getMammothMood({
+                excitement,
+                happiness,
+                hunger,
+                energy,
+                boredom,
+                affection,
+                isFeeding
+            }).text;
+            
+            // Only update if the mood text has changed significantly
+            if (newMoodText !== currentMoodText) {
+                console.log(`HomeClient: Updating mood text to "${newMoodText}"`);
+                setCurrentMoodText(newMoodText);
+                // Increment key to trigger a new AnimatedText instance
+                setMoodTextKey(prevKey => prevKey + 1);
+            }
+        }, 15000); // Check for mood text updates every 15 seconds
+        
+        // Initialize the mood text on first render
+        if (!currentMoodText) {
+            const initialMoodText = getMammothMood({
+                excitement,
+                happiness,
+                hunger,
+                energy,
+                boredom,
+                affection,
+                isFeeding
+            }).text;
+            console.log(`HomeClient: Initial mood text set to "${initialMoodText}"`);
+            setCurrentMoodText(initialMoodText);
+            setMoodTextKey(1);
+        }
+        
+        return () => clearInterval(updateMoodTextInterval);
+    }, [excitement, happiness, hunger, energy, boredom, affection, isFeeding, currentMoodText]);
+    
+    // Update mood text immediately after feeding or other significant interactions
+    const updateMoodTextNow = () => {
+        const newMoodText = getMammothMood({
+            excitement,
+            happiness,
+            hunger,
+            energy,
+            boredom,
+            affection,
+            isFeeding
+        }).text;
+        
+        if (newMoodText !== currentMoodText) {
+            console.log(`HomeClient: Forcing mood text update to "${newMoodText}"`);
+            setCurrentMoodText(newMoodText);
+            setMoodTextKey(prevKey => prevKey + 1);
+        }
+    };
 
     // Set up interval for stat decay over time
     useEffect(() => {
@@ -158,6 +224,8 @@ export default function HomeClient() {
     // Handle when the user accepts the truffle gift
     const handleAcceptTruffle = () => {
         acceptTruffle();
+        // Update mood text after accepting the truffle
+        updateMoodTextNow();
     };
 
     return (
@@ -182,16 +250,10 @@ export default function HomeClient() {
             {/* Mood text at bottom */}
             <div className="w-full py-3 text-center">
                 <AnimatedText 
-                    text={getMammothMood({
-                        excitement,
-                        happiness,
-                        hunger,
-                        energy,
-                        boredom,
-                        affection,
-                        isFeeding
-                    }).text} 
+                    key={`mood-text-${moodTextKey}`} // Adding a key to control when AnimatedText resets
+                    text={currentMoodText}
                     className={`px-2 text-md text-[#D6ECF0] ${happyMonkey.className} h-16`}
+                    holdTime={20000}
                 />
             </div>
             <main className="flex-1 flex flex-col">
@@ -245,6 +307,8 @@ export default function HomeClient() {
                             onFeedComplete={() => {
                                 feed();
                                 // Store now checks for truffle opportunity internally
+                                // Update mood text after feeding
+                                setTimeout(updateMoodTextNow, 1000);
                             }}
                             onFeedingEnd={() => {
                                 setIsFeeding(false);
@@ -328,6 +392,7 @@ export default function HomeClient() {
 
             {/* Truffle Gift Modal */}
             <TruffleGift 
+                key={`truffle-gift-${isShowingTruffle ? 'visible' : 'hidden'}`}
                 isVisible={isShowingTruffle}
                 onAccept={handleAcceptTruffle}
             />
