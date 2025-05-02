@@ -17,7 +17,7 @@ export async function generateAIMoodMessage(
       console.error('OpenAI API key not configured');
       return null;
     }
-    
+      return "test"
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [

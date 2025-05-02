@@ -275,12 +275,21 @@ export default function HomeClient() {
               <StatusBar onOpenCloset={handleOpenCloset} />
             </div>
  
-            {/* Stats are now logged to console instead of displayed */}
-            {(() => {
-                // Log the stats to console instead of displaying them
-                console.log(`Mammoth Stats - Hunger: ${Math.round(hunger)}%, Energy: ${Math.round(energy)}%, Boredom: ${Math.round(boredom)}%, Affection: ${Math.round(affection)}%, Mood: ${emotionalState}`);
-                return null;
-            })()}
+            {/* Detailed mood stats - shown in a subtle way */}
+            <div className="flex justify-center gap-3 my-2 pt-2 hidden">
+                <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                    <span className="mr-1">🍗</span>{Math.round(hunger)}%
+                </div>
+                <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                    <span className="mr-1">⚡</span>{Math.round(energy)}%
+                </div>
+                <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                    <span className="mr-1">😴</span>{Math.round(boredom)}%
+                </div>
+                <div className="text-xs text-[#D6ECF0]/70 flex items-center">
+                    <span className="mr-1">❤️</span>{Math.round(affection)}%
+                </div>
+            </div>
                 
             {/* Mood text at bottom */}
             <div className="w-full py-3 text-center">
@@ -328,7 +337,7 @@ export default function HomeClient() {
                             color: 'transparent',
                             transform: 'scale(1.75) translateY(-135px) translateX(-6px)',
                             zIndex: -200,
-                            filter: 'brightness(0.5) contrast(0.5) blur(0.5px)'
+                            filter: 'sepia(0.4) brightness(1.1) saturate(1.2) hue-rotate(-20deg)'
                         }}
                         priority
                     />
@@ -364,18 +373,32 @@ export default function HomeClient() {
 
             {/* New Action buttons fixed at the bottom of the page */}
             <div className={`fixed bottom-0 left-0 right-0 p-2 z-30 ${isFeeding ? 'opacity-30 pointer-events-none' : ''}`}>
-                {/* Dark container bar */}
-                <div className="flex justify-around items-center bg-zinc-800 rounded-lg p-2 shadow-md max-w-sm mx-auto">
-                    {/* Feed Button */}
+                {/* Dark container bar - Updated styling */}
+                <div 
+                  className="flex justify-around items-center rounded-lg p-2 shadow-md max-w-sm mx-auto"
+                  style={{
+                    backgroundColor: 'rgba(var(--ui-bg-medium), 0.85)', // Use slightly darker UI bg with transparency
+                    border: `1px solid rgba(var(--ui-border), 0.6)` // Use slightly darker UI border
+                  }}
+                >
+                    {/* Feed Button - Updated styling */}
                     <button
                         onClick={handleStartFeed}
                         disabled={isFeeding}
-                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                        className="flex items-center justify-center w-14 h-14 rounded-lg shadow transition-colors"
+                        style={{
+                          backgroundColor: 'rgba(var(--ui-bg-light), 0.8)',
+                          border: `1px solid rgba(var(--ui-border), 0.4)`
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 0.8)'; }}
+                        onMouseDown={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
+                        onMouseUp={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                     >
                         <span className="text-2xl">🥕</span>
                     </button>
 
-                    {/* Play Button */}
+                    {/* Play Button - Updated styling */}
                     <button
                         onClick={() => {
                             play();
@@ -387,20 +410,36 @@ export default function HomeClient() {
                         <span className="text-2xl">🕹️</span>
                     </button>
 
-                    {/* Groom Button */}
+                    {/* Groom Button - Updated styling */}
                     <button
                         onClick={handleStartGroom}
                         disabled={isGrooming || isFeeding}
-                        className={`flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow transition-colors ${isGrooming ? 'bg-primary/30' : 'hover:bg-zinc-500 active:bg-zinc-700'}`}
-                    >
+                        className={`flex items-center justify-center w-14 h-14 rounded-lg shadow transition-colors ${isGrooming ? 'opacity-50' : ''}`} // Simplified disabled state
+                        style={{
+                          backgroundColor: isGrooming ? 'rgba(var(--ui-border), 0.5)' : 'rgba(var(--ui-bg-light), 0.8)', // Different bg when grooming
+                          border: `1px solid rgba(var(--ui-border), 0.4)`
+                        }}
+                        onMouseOver={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
+                        onMouseOut={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 0.8)'; }}
+                        onMouseDown={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
+                        onMouseUp={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
+                   >
                         <span className="text-2xl">🖌️</span>
                     </button>
                     
-                    {/* Closet/T-shirt Button */}
+                    {/* Closet/T-shirt Button - Updated styling */}
                     <button
                         onClick={handleOpenCloset}
                         disabled={isFeeding}
-                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                        className="flex items-center justify-center w-14 h-14 rounded-lg shadow transition-colors"
+                        style={{
+                          backgroundColor: 'rgba(var(--ui-bg-light), 0.8)',
+                          border: `1px solid rgba(var(--ui-border), 0.4)`
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 0.8)'; }}
+                        onMouseDown={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
+                        onMouseUp={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                     >
                         <span className="text-2xl">👕</span>
                     </button>

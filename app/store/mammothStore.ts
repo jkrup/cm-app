@@ -20,9 +20,11 @@ export type EmotionalState =
   | 'lethargic'  // Low Energy + Low Happiness
 
 interface MammothState {
+  name: string;
   // Core mood metrics (centralized as the main organizing principle)
   energy: number       // 0 = exhausted, 100 = energetic (X-axis)
   _happiness: number   // Internal base happiness value before calculation
+  _excitement: number;
   
   // Advanced mood metrics (these affect the core metrics)
   hunger: number       // Low hunger increases happiness
@@ -60,8 +62,10 @@ interface MammothState {
 
 export const useMammothStore = create<MammothState>((set, get) => ({
   // Initialize core metrics
+  name: "Chonky",
   energy: 50,        // 0 = exhausted, 100 = energetic (X-axis)
   _happiness: 50,    // Internal base value
+  _excitement: 50,
   
   // Initialize advanced metrics
   hunger: 50,       // 0 = starving, 100 = full
