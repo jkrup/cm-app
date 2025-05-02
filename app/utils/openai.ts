@@ -6,57 +6,18 @@ export interface MoodContext {
   energy: number;
   boredom: number;
   affection: number;
-  actionCount: number;
 }
 
-// Counter to track actions
-let actionCounter = 0;
+import { generateAIMoodMessage } from '../actions/ai-mood';
 
-// Function to get the current action count
-export const getActionCount = () => actionCounter;
-
-// Function to increment the action count
-export const incrementActionCount = () => {
-  actionCounter += 1;
-  return actionCounter;
-};
-
-// Function to reset the action count
-export const resetActionCount = () => {
-  actionCounter = 0;
-  return actionCounter;
-};
-
-// Function to check if we should generate a custom message
-export const shouldGenerateCustomMessage = () => {
-  return actionCounter > 0 && actionCounter % 5 === 0;
-};
-
-// Function to generate a custom mood message using our API endpoint
+// Function to generate a custom mood message using a server action
 export const generateCustomMoodMessage = async (
   mammothName: string,
   moodContext: MoodContext
 ): Promise<string | null> => {
   try {
-    const response = await fetch('/api/ai-mood', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        mammothName,
-        moodContext,
-      }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.warn('Error from AI mood API:', errorData);
-      return null;
-    }
-    
-    const data = await response.json();
-    return data.text;
+    const data = await generateAIMoodMessage(mammothName, moodContext);
+    return data;
   } catch (error) {
     console.error('Error generating custom mood message:', error);
     return null;
