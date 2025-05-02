@@ -270,7 +270,10 @@ export default function HomeClient() {
 
     return (
         <div className="flex flex-col min-h-screen relative pb-16">
-            <StatusBar onOpenCloset={handleOpenCloset} />
+            {/* Wrap StatusBar in a div with padding-top */}
+            <div className="pt-6">
+              <StatusBar onOpenCloset={handleOpenCloset} />
+            </div>
  
             {/* Stats are now logged to console instead of displayed */}
             {(() => {
@@ -359,48 +362,49 @@ export default function HomeClient() {
                 )}
             </main>
 
-            {/* Action buttons fixed at the bottom of the page */}
-            <div className={`fixed bottom-0 left-0 right-0 flex justify-center gap-8 py-4 z-30 ${isFeeding ? 'opacity-30' : ''}`}>
-                {/* Groom button */}
-                <button
-                    onClick={() => handleStartGroom()}
-                    disabled={isGrooming || isFeeding}
-                    className={`w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center
-                        drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]
-                        ${isGrooming ? 'bg-primary/10' : 'hover:bg-gray-50 active:bg-gray-100 hover:scale-110 transition-transform'}`}
-                >
-                    {!isGrooming && <span className="text-xl">🪮</span>}
-                </button>
+            {/* New Action buttons fixed at the bottom of the page */}
+            <div className={`fixed bottom-0 left-0 right-0 p-2 z-30 ${isFeeding ? 'opacity-30 pointer-events-none' : ''}`}>
+                {/* Dark container bar */}
+                <div className="flex justify-around items-center bg-zinc-800 rounded-lg p-2 shadow-md max-w-sm mx-auto">
+                    {/* Feed Button */}
+                    <button
+                        onClick={handleStartFeed}
+                        disabled={isFeeding}
+                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                    >
+                        <span className="text-2xl">🥕</span>
+                    </button>
 
-                {/* Feed button */}
-                <button
-                    onClick={handleStartFeed}
-                    disabled={isGrooming || isFeeding}
-                    className="hover:scale-110 transition-transform"
-                >
-                    <Image 
-                        src="/food/pizza.png" 
-                        alt="Food" 
-                        width={64} 
-                        height={64} 
-                        className="filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]"
-                        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}
-                    />
-                </button>
+                    {/* Play Button */}
+                    <button
+                        onClick={() => {
+                            play();
+                            updateLastInteractionTime();
+                        }}
+                        disabled={isGrooming || isFeeding}
+                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                    >
+                        <span className="text-2xl">🕹️</span>
+                    </button>
 
-                {/* Play button */}
-                <button
-                    onClick={() => {
-                        play();
-                        updateLastInteractionTime();
-                    }}
-                    disabled={isGrooming || isFeeding}
-                    className={`w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center
-                        drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]
-                        hover:bg-gray-50 active:bg-gray-100 hover:scale-110 transition-transform`}
-                >
-                    <span className="text-xl">🎮</span>
-                </button>
+                    {/* Groom Button */}
+                    <button
+                        onClick={handleStartGroom}
+                        disabled={isGrooming || isFeeding}
+                        className={`flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow transition-colors ${isGrooming ? 'bg-primary/30' : 'hover:bg-zinc-500 active:bg-zinc-700'}`}
+                    >
+                        <span className="text-2xl">🖌️</span>
+                    </button>
+                    
+                    {/* Closet/T-shirt Button */}
+                    <button
+                        onClick={handleOpenCloset}
+                        disabled={isFeeding}
+                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                    >
+                        <span className="text-2xl">👕</span>
+                    </button>
+                </div>
             </div>
             
             {showModal && (

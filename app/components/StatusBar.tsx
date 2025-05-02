@@ -1,39 +1,116 @@
 // Path: app/components/StatusBar.tsx
 import { useState } from 'react';
-import { MAMMOTH_NAME } from '../constants/mammoth';
+// import { MAMMOTH_NAME } from '../constants/mammoth'; // Re-comment if needed, or remove if unused
 import MenuModal from './MenuModal';
 import CareLogPanel from './CareLogPanel';
 import SettingsPanel from './SettingsPanel';
+import { londrinaSolid } from '../fonts/fonts';
+import { useMammothStore } from '../store/mammothStore';
 
 interface StatusBarProps {
   onOpenCloset: () => void;
 }
 
+// Helper to generate conic gradient style
+const getConicGradientStyle = (percentage: number, progressColor: string, trackColor: string) => {
+  // Clamp percentage
+  const clampedPercentage = Math.max(0, Math.min(100, percentage));
+  return {
+    // Offset by -90deg to start from top
+    backgroundImage: `conic-gradient(from -90deg, ${progressColor} 0% ${clampedPercentage}%, ${trackColor} ${clampedPercentage}% 100%)`,
+  };
+};
+
 export default function StatusBar({ onOpenCloset }: StatusBarProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showCareLog, setShowCareLog] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const level = 5;
-  const coins = 250;
+
+  // Get stats from the store
+  const { hunger, affection, energy, boredom } = useMammothStore();
+
+  const level = 88;
+  const coins = 888888;
+  const name = "WOOLLIE BULLY ELI";
+  
+  // Define colors
+  const trackColor = '#3f3f46'; // zinc-700 (using the icon bg for track seems reasonable)
+  const hungerColor = '#F59E0B'; // amber-500
+  const affectionColor = '#EC4899'; // pink-500
+  const energyColor = '#3B82F6'; // blue-500
+  const boredomColor = '#A855F7'; // purple-500 (represents "not bored" percentage)
+
+  // Calculate percentages for gradients
+  const hungerPercent = hunger;
+  const affectionPercent = affection;
+  const energyPercent = energy;
+  const notBoredPercent = 100 - boredom;
+
+  // Ring thickness (adjust as needed)
+  const ringThickness = '3px';
 
   return (
-    <div className="w-full bg-[#0D1425] shadow-lg border-b border-[#2A3A60]">
-      <div className="flex justify-between items-center px-4 py-3">
-        <div className="flex flex-col">
-          <h1 
-            className="text-xl font-bold cursor-pointer" 
-            style={{
-              background: "linear-gradient(to bottom, rgb(110, 203, 220), rgb(56, 152, 184))",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              textShadow: "0 2px 4px rgba(40, 180, 220, 0.3)"
-            }}
-            onClick={() => setShowMenu(true)}
-          >
-            {MAMMOTH_NAME}
-          </h1>
-          <div className="text-sm text-[#6ECBDC]">Level {level}</div>
+    <div className="w-full shadow-lg">
+      <div className="flex justify-between items-start px-4 py-3 relative">
+        {/* === Top-Left Structure === */}
+        <div className="relative flex flex-col items-center" style={{ marginLeft: '40px'}}>
+          
+          {/* SVG for Curved Name Text */}
+          <svg viewBox="0 0 120 35" width="120" height="35" className="absolute top-[-20px] left-1/2 transform -translate-x-1/2">
+            <path id="nameCurve" d="M10,30 C40,5 80,5 110,30" fill="transparent" />
+            <text dy="-2" className={`text-xs font-bold fill-white tracking-wider ${londrinaSolid.className}`}>
+              <textPath href="#nameCurve" startOffset="50%" textAnchor="middle">
+                {name}
+              </textPath>
+            </text>
+          </svg>
+
+          {/* Central Container for Profile Pic and Stat Icons */}
+          <div className="relative w-20 h-20 flex items-center justify-center mt-3">
+            {/* Profile Picture Placeholder */}
+            <div className="w-16 h-16 bg-zinc-600 rounded-full border-2 border-zinc-400 shadow-md flex items-center justify-center">
+              <span className="text-2xl">🐘</span> 
+            </div>
+
+            {/* Level Badge (commented out by user) */}
+            {/* <div className={`absolute bottom-0 left-0 transform translate-x-[-10px] translate-y-[10px] w-6 h-6 bg-zinc-800 rounded-full border-2 border-zinc-500 flex items-center justify-center text-white text-xs font-bold ${londrinaSolid.className}`}> */}
+            {/*   {level} */}
+            {/* </div> */}
+
+            {/* Stat Icons - Apply conic gradient via ::before */}
+            {/* Fork (Hunger) - Add data- Fpr CSS */}
+            <div 
+              className="stat-icon absolute z-10 flex items-center justify-center w-8 h-8 bg-zinc-700 rounded-full shadow-inner border border-zinc-800/50 overflow-hidden" // Added overflow-hidden
+              data-stat="hunger"
+              style={{ transform: 'translate(-32px, -32px)', '--progress-color': hungerColor, '--track-color': trackColor, '--percentage': `${hungerPercent}%` } as React.CSSProperties}
+            >
+              <span className="text-lg relative z-10">🍴</span> 
+            </div>
+            {/* Heart (Affection) */}
+            <div 
+              className="stat-icon absolute z-10 flex items-center justify-center w-8 h-8 bg-zinc-700 rounded-full shadow-inner border border-zinc-800/50 overflow-hidden"
+              data-stat="affection"
+              style={{ transform: 'translate(32px, -32px)', '--progress-color': affectionColor, '--track-color': trackColor, '--percentage': `${affectionPercent}%` } as React.CSSProperties}
+              >
+              <span className="text-lg relative z-10">❤️</span>
+            </div>
+            {/* Lightning (Energy) */}
+            <div 
+              className="stat-icon absolute z-10 flex items-center justify-center w-8 h-8 bg-zinc-700 rounded-full shadow-inner border border-zinc-800/50 overflow-hidden"
+              data-stat="energy"
+              style={{ transform: 'translate(-32px, 32px)', '--progress-color': energyColor, '--track-color': trackColor, '--percentage': `${energyPercent}%` } as React.CSSProperties}
+              >
+              <span className="text-lg relative z-10">⚡</span>
+            </div>
+            {/* Zzz (Boredom) */}
+            <div 
+              className="stat-icon absolute z-10 flex items-center justify-center w-8 h-8 bg-zinc-700 rounded-full shadow-inner border border-zinc-800/50 overflow-hidden"
+              data-stat="boredom"
+              style={{ transform: 'translate(32px, 32px)', '--progress-color': boredomColor, '--track-color': trackColor, '--percentage': `${notBoredPercent}%` } as React.CSSProperties}
+              >
+              <span className="text-lg relative z-10">😴</span>
+            </div>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
@@ -52,7 +129,7 @@ export default function StatusBar({ onOpenCloset }: StatusBarProps) {
             className="relative p-2 text-[#6ECBDC] hover:text-white"
             aria-label="Care Log"
           >
-            📖
+            ��
           </button>
           
           {/* Coins button (closet) */}
@@ -61,13 +138,12 @@ export default function StatusBar({ onOpenCloset }: StatusBarProps) {
             className="flex items-center gap-2 bg-[#1A2845] p-2 rounded-full px-3 shadow-inner 
                       hover:bg-[#1F3258] active:bg-[#1A2845] transition-colors cursor-pointer"
           >
-            <span>💰</span>
-            <span className="font-medium text-[#FFD700]">{coins}</span>
+            <span>🪙</span>
+            <span className={`font-medium text-[#FFD700] ${londrinaSolid.className}`}>{coins.toLocaleString()}</span>
           </button>
         </div>
       </div>
 
-      {/* Menu Modal */}
       <MenuModal isOpen={showMenu} onClose={() => setShowMenu(false)} />
       
       {/* Care Log Panel */}
@@ -81,6 +157,25 @@ export default function StatusBar({ onOpenCloset }: StatusBarProps) {
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
       />
+      
+      {/* Add styles for the conic gradient ring using ::before */}
+      <style jsx>{`
+        .stat-icon {
+          position: absolute; /* Ensure it is positioned correctly */
+        }
+        .stat-icon::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          padding: ${ringThickness}; /* Control ring thickness */
+          background: conic-gradient(from -90deg, var(--progress-color) 0% var(--percentage), var(--track-color) var(--percentage) 100%);
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude; 
+          -webkit-mask-composite: xor; /* For Safari */
+          transition: background 0.3s ease-in-out; /* Animate color change */
+        }
+      `}</style>
     </div>
   );
 }
