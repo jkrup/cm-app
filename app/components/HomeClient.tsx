@@ -19,6 +19,8 @@ import { getMammothMood } from '@/app/utils/getMood';
 import Mammoth from './Mammoth';
 import AnimatedText from './AnimatedText';
 import TruffleGift from './TruffleGift';
+import { useNotificationStore } from '@/app/store/notificationStore';
+import { useConfigStore } from '@/app/store/configStore';
 
 // Define costume types
 type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' | 
@@ -38,6 +40,10 @@ export default function HomeClient() {
     const [currentMoodText, setCurrentMoodText] = useState<string>('');
     const [moodTextKey, setMoodTextKey] = useState<number>(0);
     
+    // Get config and notification store functions
+    const checkNotifications = useNotificationStore(state => state.checkForNotifications);
+    const updateLastInteractionTime = useConfigStore(state => state.updateLastInteractionTime);
+    
     // Subscribe to the mammoth store to get the stats
     const { 
         hunger, 
@@ -48,8 +54,8 @@ export default function HomeClient() {
         play, 
         groom, 
         decreaseStats,
-        getExcitement,
         getHappiness,
+        getEmotionalState,
         canGiveTruffle,
         isShowingTruffle,
         checkTruffleConditions,
@@ -57,12 +63,25 @@ export default function HomeClient() {
         setIsShowingTruffle
     } = useMammothStore();
     
-    // Get the calculated excitement and happiness
-    const excitement = getExcitement();
+    // Get the calculated happiness and emotional state
     const happiness = getHappiness();
+    const emotionalState = getEmotionalState();
 
     // Force component update when stats change to ensure we always display current values
     const [, forceUpdate] = useState({});
+    
+    // Initialize with component mount (first load)
+    useEffect(() => {
+        // Initial notification check
+        checkNotifications();
+        
+        // Set up interval to check for notifications
+        const interval = setInterval(() => {
+            checkNotifications();
+        }, 60000); // Check every minute
+        
+        return () => clearInterval(interval);
+    }, [checkNotifications]);
     
     // Ensure we update UI whenever any store values change
     useEffect(() => {
@@ -79,12 +98,12 @@ export default function HomeClient() {
         // This prevents the AnimatedText from constantly restarting
         const updateMoodTextInterval = setInterval(() => {
             const newMoodText = getMammothMood({
-                excitement,
+                energy,
                 happiness,
                 hunger,
-                energy,
                 boredom,
                 affection,
+                emotionalState,
                 isFeeding
             }).text;
             
@@ -100,12 +119,12 @@ export default function HomeClient() {
         // Initialize the mood text on first render
         if (!currentMoodText) {
             const initialMoodText = getMammothMood({
-                excitement,
+                energy,
                 happiness,
                 hunger,
-                energy,
                 boredom,
                 affection,
+                emotionalState,
                 isFeeding
             }).text;
             console.log(`HomeClient: Initial mood text set to "${initialMoodText}"`);
@@ -114,17 +133,17 @@ export default function HomeClient() {
         }
         
         return () => clearInterval(updateMoodTextInterval);
-    }, [excitement, happiness, hunger, energy, boredom, affection, isFeeding, currentMoodText]);
+    }, [energy, happiness, hunger, boredom, affection, emotionalState, isFeeding, currentMoodText]);
     
     // Update mood text immediately after feeding or other significant interactions
     const updateMoodTextNow = () => {
         const newMoodText = getMammothMood({
-            excitement,
+            energy,
             happiness,
             hunger,
-            energy,
             boredom,
             affection,
+            emotionalState,
             isFeeding
         }).text;
         
@@ -164,6 +183,8 @@ export default function HomeClient() {
         setIsFeeding(true);
         // Initially show the mammoth during feeding, will hide when animation starts
         setHideMammothDuringFeeding(false);
+        // Update interaction time
+        updateLastInteractionTime();
     };
 
     // Handle feeding animation states
@@ -186,6 +207,8 @@ export default function HomeClient() {
     // Handle starting grooming
     const handleStartGroom = () => {
         setIsGrooming(true);
+        // Update interaction time
+        updateLastInteractionTime();
     };
 
     // Handle completion of grooming
@@ -197,11 +220,15 @@ export default function HomeClient() {
     // Handle long press on mammoth
     const handleMammothLongPress = () => {
         setShowModal(true);
+        // Update interaction time
+        updateLastInteractionTime();
     };
 
     // Handle opening the closet
     const handleOpenCloset = () => {
         setShowCloset(true);
+        // Update interaction time
+        updateLastInteractionTime();
     };
 
     // Handle costume selection
@@ -212,12 +239,12 @@ export default function HomeClient() {
     // Get mammoth expression based on current state
     const getMammothExpression = () => {
         return getMammothMood({
-            excitement,
+            energy,
             happiness,
             hunger,
-            energy,
             boredom,
-            affection
+            affection,
+            emotionalState
         }).expression;
     };
 
@@ -226,27 +253,32 @@ export default function HomeClient() {
         acceptTruffle();
         // Update mood text after accepting the truffle
         updateMoodTextNow();
+        // Update interaction time
+        updateLastInteractionTime();
+    };
+
+    // Get emoji for the current emotional state
+    const getEmotionalStateEmoji = () => {
+        switch (emotionalState) {
+            case 'playful': return '🎮';
+            case 'agitated': return '😤';
+            case 'content': return '😌';
+            case 'lethargic': return '😔';
+            default: return '🦣';
+        }
     };
 
     return (
         <div className="flex flex-col min-h-screen relative pb-16">
             <StatusBar onOpenCloset={handleOpenCloset} />
  
-                {/* Detailed mood stats - shown in a subtle way */}
-                <div className="flex justify-center gap-3 my-2 pt-2">
-                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
-                        <span className="mr-1">🍗</span>{Math.round(hunger)}%
-                    </div>
-                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
-                        <span className="mr-1">⚡</span>{Math.round(energy)}%
-                    </div>
-                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
-                        <span className="mr-1">😴</span>{Math.round(boredom)}%
-                    </div>
-                    <div className="text-xs text-[#D6ECF0]/70 flex items-center">
-                        <span className="mr-1">❤️</span>{Math.round(affection)}%
-                    </div>
-                </div>
+            {/* Stats are now logged to console instead of displayed */}
+            {(() => {
+                // Log the stats to console instead of displaying them
+                console.log(`Mammoth Stats - Hunger: ${Math.round(hunger)}%, Energy: ${Math.round(energy)}%, Boredom: ${Math.round(boredom)}%, Affection: ${Math.round(affection)}%, Mood: ${emotionalState}`);
+                return null;
+            })()}
+                
             {/* Mood text at bottom */}
             <div className="w-full py-3 text-center">
                 <AnimatedText 
@@ -259,8 +291,6 @@ export default function HomeClient() {
             <main className="flex-1 flex flex-col">
                 <div className="flex-1 flex flex-col justify-center">
                     <CircularStats 
-                        excitement={excitement}
-                        happiness={happiness}
                         isGrooming={isGrooming}
                         onGroomComplete={() => {
                             setIsGrooming(false);
@@ -271,6 +301,8 @@ export default function HomeClient() {
                         onGroomClick={() => setIsGrooming(true)}
                         onPlayClick={() => {
                             play();
+                            // Update interaction time
+                            updateLastInteractionTime();
                             // Store now checks for truffle opportunity internally
                         }}
                         onMammothLongPress={() => setShowCustomize(true)}
@@ -358,7 +390,10 @@ export default function HomeClient() {
 
                 {/* Play button */}
                 <button
-                    onClick={play}
+                    onClick={() => {
+                        play();
+                        updateLastInteractionTime();
+                    }}
                     disabled={isGrooming || isFeeding}
                     className={`w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center
                         drop-shadow-[0_0_3px_rgba(110,203,220,0.6)]

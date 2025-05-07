@@ -13,8 +13,9 @@ import prefeedingMammothImg from '@/public/mammoth/moods/prefeed.png';
 
 // Import the MAMMOTH_NAME constant
 import { MAMMOTH_NAME } from '@/app/constants/mammoth';
+import { EmotionalState } from '@/app/store/mammothStore';
 
-export type MoodLevel = 'happy' | 'content' | 'bored' | 'sad' | 'playful' | 'hungry' | 'angry' | 'sleepy' | 'excited' | 'grumpy';
+export type MoodLevel = 'happy' | 'content' | 'bored' | 'sad' | 'playful' | 'hungry' | 'angry' | 'sleepy' | 'excited' | 'grumpy' | 'agitated' | 'lethargic';
 
 export interface MammothMood {
   level: MoodLevel;
@@ -34,7 +35,9 @@ let lastTexts: Record<MoodLevel, string | null> = {
   'angry': null,
   'sleepy': null,
   'excited': null,
-  'grumpy': null
+  'grumpy': null,
+  'agitated': null,
+  'lethargic': null
 };
 
 // Helper function to get a random text that's different from the last one
@@ -55,26 +58,24 @@ const getRandomText = (texts: string[], moodLevel: MoodLevel): string => {
 };
 
 interface MoodParams {
-  excitement: number;
+  energy: number;
   happiness: number;
   hunger?: number;
-  energy?: number;
   boredom?: number;
   affection?: number;
   isFeeding?: boolean;
+  emotionalState?: EmotionalState;
 }
 
 export function getMammothMood({
-  excitement,
+  energy,
   happiness,
   hunger = 50,
-  energy = 50,
   boredom = 50,
   affection = 50,
-  isFeeding = false
+  isFeeding = false,
+  emotionalState
 }: MoodParams): MammothMood {
-  const avgMood = (excitement + happiness) / 2;
-  
   // Hunger messages
   const hungryTexts = [
     `${MAMMOTH_NAME} is eagerly awaiting her tasty treats`,
@@ -82,25 +83,32 @@ export function getMammothMood({
     `${MAMMOTH_NAME} is ready to eat! She wants her food NOW!`
   ];
   
-  // Playful messages
+  // Playful messages (High Energy + High Happiness)
   const playfulTexts = [
     `${MAMMOTH_NAME} is feeling excited and energetic! Time for a new game!`,
     `${MAMMOTH_NAME} is brimming with confidence! She's ready to win!`,
-    `${MAMMOTH_NAME} misses you and wants you to hang out with her`
+    `${MAMMOTH_NAME} is bouncing with joy! She wants to play with you!`
   ];
   
-  // Sad messages
-  const sadTexts = [
-    `${MAMMOTH_NAME} is really sad that you've been gone so long`,
-    `${MAMMOTH_NAME} is down in the dumps. Where have you been?`,
-    `${MAMMOTH_NAME} is sad that she lost the game. Give her a treat?`
+  // Content messages (Low Energy + High Happiness)
+  const contentTexts = [
+    `${MAMMOTH_NAME} is content with life right now`,
+    `${MAMMOTH_NAME} feels pretty good about things`,
+    `${MAMMOTH_NAME} is relaxed and enjoying your company`
   ];
   
-  // Angry messages
-  const angryTexts = [
-    `${MAMMOTH_NAME} can't contain herself, she's so mad!`,
-    `${MAMMOTH_NAME} wants a rematch! No fair!`,
-    `This food is not what she wanted! ${MAMMOTH_NAME} demands more NOW!`
+  // Agitated messages (High Energy + Low Happiness)
+  const agitatedTexts = [
+    `${MAMMOTH_NAME} is restless and irritable. Something's bothering her.`,
+    `${MAMMOTH_NAME} can't sit still. She's pacing back and forth anxiously.`,
+    `${MAMMOTH_NAME} is full of energy but seems unhappy about something.`
+  ];
+  
+  // Lethargic messages (Low Energy + Low Happiness)
+  const lethargicTexts = [
+    `${MAMMOTH_NAME} is feeling down and has no energy to do anything.`,
+    `${MAMMOTH_NAME} looks sad and tired. Perhaps she needs some care.`,
+    `${MAMMOTH_NAME} is barely moving. She seems depressed and exhausted.`
   ];
   
   // Sleepy messages
@@ -117,18 +125,25 @@ export function getMammothMood({
     `All the glaciers in the world won't stop ${MAMMOTH_NAME} from giving you a big hug!`
   ];
   
-  // Content messages
-  const contentTexts = [
-    `${MAMMOTH_NAME} is content with life right now`,
-    `${MAMMOTH_NAME} feels pretty good about things`,
-    `${MAMMOTH_NAME} is relaxing and enjoying the moment`
-  ];
-  
   // Bored messages
   const boredTexts = [
     `${MAMMOTH_NAME} is getting a bit bored. Play with her?`,
     `${MAMMOTH_NAME} is tapping her foot, waiting for something exciting to happen`,
     `${MAMMOTH_NAME} wonders what you're up to. She's looking for entertainment`
+  ];
+  
+  // Angry messages
+  const angryTexts = [
+    `${MAMMOTH_NAME} can't contain herself, she's so mad!`,
+    `${MAMMOTH_NAME} wants a rematch! No fair!`,
+    `This food is not what she wanted! ${MAMMOTH_NAME} demands more NOW!`
+  ];
+  
+  // Sad messages
+  const sadTexts = [
+    `${MAMMOTH_NAME} is really sad that you've been gone so long`,
+    `${MAMMOTH_NAME} is down in the dumps. Where have you been?`,
+    `${MAMMOTH_NAME} is sad that she lost the game. Give her a treat?`
   ];
   
   if (isFeeding) {
@@ -140,8 +155,8 @@ export function getMammothMood({
     };
   }
   
-  // Very low energy results in sleepy mammoth
-  if (energy < 25) {
+  // Very low energy always results in sleepy mammoth
+  if (energy < 15) {
     return {
       level: 'sleepy',
       text: getRandomText(sleepyTexts, 'sleepy'),
@@ -160,9 +175,45 @@ export function getMammothMood({
     };
   }
   
+  // If we have a valid emotional state, use it to determine the mood
+  if (emotionalState) {
+    switch (emotionalState) {
+      case 'playful': // High Energy + High Happiness
+        return {
+          level: 'playful',
+          text: getRandomText(playfulTexts, 'playful'),
+          expression: playingMammothImg,
+          bounceAnimation: 'animate-bounce'
+        };
+        
+      case 'agitated': // High Energy + Low Happiness
+        return {
+          level: 'agitated',
+          text: getRandomText(agitatedTexts, 'agitated'),
+          expression: angryMammothImg,
+          bounceAnimation: 'animate-bounce-small'
+        };
+        
+      case 'content': // Low Energy + High Happiness
+        return {
+          level: 'content',
+          text: getRandomText(contentTexts, 'content'),
+          expression: friendlyMammothImg,
+          bounceAnimation: 'animate-bounce-small'
+        };
+        
+      case 'lethargic': // Low Energy + Low Happiness
+        return {
+          level: 'lethargic',
+          text: getRandomText(lethargicTexts, 'lethargic'),
+          expression: sadMammothImg,
+          bounceAnimation: ''
+        };
+    }
+  }
   
-  // High boredom but high excitement leads to anger - mammoth is frustrated
-  if (boredom > 75 && excitement > 70) {
+  // High boredom but high energy leads to anger - mammoth is frustrated
+  if (boredom > 75 && energy > 70) {
     return {
       level: 'angry',
       text: getRandomText(angryTexts, 'angry'),
@@ -171,8 +222,8 @@ export function getMammothMood({
     };
   }
   
-  // Very high excitement and happiness - mammoth is super happy
-  if (excitement > 85 && happiness > 85) {
+  // Very high energy and happiness - mammoth is super happy
+  if (energy > 85 && happiness > 85) {
     return {
       level: 'excited',
       text: getRandomText(excitedTexts, 'excited'),
@@ -181,8 +232,8 @@ export function getMammothMood({
     };
   }
   
-  // High excitement and energy - mammoth wants to play
-  if (excitement > 75 && energy > 60) {
+  // High energy - mammoth wants to play
+  if (energy > 75) {
     return {
       level: 'playful',
       text: getRandomText(playfulTexts, 'playful'),
@@ -212,6 +263,7 @@ export function getMammothMood({
   }
   
   // Fall back to standard mood calculation based on average mood
+  const avgMood = (energy + happiness) / 2;
   
   // Very happy
   if (avgMood > 80) {

@@ -30,6 +30,11 @@ export function getMemoryDescription(entry: MammothMemoryEntry): string {
       return `Groomed the mammoth when its affection was ${previousState.affection < 30 ? 'low' : 
         previousState.affection < 60 ? 'moderate' : 'high'}`;
     
+    case 'truffle':
+      return `Received a truffle gift from the mammoth when its happiness was ${
+        (previousState.affection > 70 && previousState.hunger > 50) ? 'very high' : 
+        previousState.affection > 50 ? 'high' : 'moderate'}`;
+    
     default:
       return `Interacted with the mammoth`;
   }

@@ -35,7 +35,6 @@ type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' 
                   'wizard' | 'viking';
 
 interface MammothProps {
-    excitement?: number;
     happiness?: number;
     isGrooming: boolean;
     onGroomComplete: () => void;
@@ -64,18 +63,18 @@ export default function Mammoth({
     const [, forceUpdate] = useState({});
 
     // Get all mood metrics from the store
-    const { hunger, energy, boredom, affection, getExcitement, getHappiness } = useMammothStore(state => ({
+    const { hunger, energy, boredom, affection, getHappiness, getEmotionalState } = useMammothStore(state => ({
         hunger: state.hunger,
         energy: state.energy,
         boredom: state.boredom,
         affection: state.affection,
-        getExcitement: state.getExcitement,
-        getHappiness: state.getHappiness
+        getHappiness: state.getHappiness,
+        getEmotionalState: state.getEmotionalState
     }));
 
-    // Get the calculated excitement and happiness values
-    const excitement = getExcitement();
+    // Get the calculated happiness value and emotional state
     const happiness = getHappiness();
+    const emotionalState = getEmotionalState();
 
     // Subscribe to store changes to keep UI in sync
     useEffect(() => {
@@ -131,13 +130,13 @@ export default function Mammoth({
     }, [isGrooming]);
 
     const mood = getMammothMood({
-        excitement, 
+        energy, 
         happiness, 
         hunger,
-        energy,
         boredom,
         affection,
-        isFeeding
+        isFeeding,
+        emotionalState
     });
 
     const getExpression = () => {
@@ -269,10 +268,24 @@ export default function Mammoth({
             clearTimeout(longPressTimer.current);
         }
     };
+    
+    // Helper to determine mood class based on emotional state
+    const getMoodClass = () => {
+        if (isFeeding) return 'mood-hungry';
+        if (energy < 15) return 'mood-sleepy';
+        
+        switch (emotionalState) {
+            case 'playful': return 'mood-playful';
+            case 'agitated': return 'mood-agitated';
+            case 'content': return 'mood-content';
+            case 'lethargic': return 'mood-lethargic';
+            default: return '';
+        }
+    };
 
     return (
         <div 
-            className="absolute flex items-center justify-center"
+            className={`absolute flex items-center justify-center ${getMoodClass()}`}
             onMouseDown={handleBrushStart}
             onMouseUp={handleBrushEnd}
             onMouseLeave={handleBrushEnd}
@@ -282,8 +295,8 @@ export default function Mammoth({
             onTouchMove={handleBrushMove}
             ref={mammothRef}
         >
-            {/* Blue aura behind the mammoth */}
-            {/* <div className="blue-aura absolute"></div> */}
+            {/* Aura behind the mammoth based on mood */}
+            <div className="absolute inset-0 rounded-full mood-aura"></div>
             
             {/* Visual indicator for grooming mode */}
             {isGrooming && (
@@ -349,6 +362,12 @@ export default function Mammoth({
                 </div>
             )}
             
+            {/* Debug info for development */}
+            {/* <div className="absolute top-0 left-0 bg-black/70 text-white text-xs p-2 rounded-md">
+                Energy: {energy.toFixed(0)} | Happiness: {happiness.toFixed(0)}<br/>
+                State: {emotionalState}
+            </div> */}
+            
             {/* Add global style for hiding cursor */}
             <style jsx global>{`
                 .cursor-none {
@@ -357,6 +376,68 @@ export default function Mammoth({
                 
                 .cursor-none * {
                     cursor: none !important;
+                }
+                
+                /* Mood-specific auras */
+                .mood-playful .mood-aura {
+                    background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-playful 4s ease-in-out infinite;
+                }
+                
+                .mood-agitated .mood-aura {
+                    background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-agitated 2s ease-in-out infinite;
+                }
+                
+                .mood-content .mood-aura {
+                    background: radial-gradient(circle, rgba(152,251,152,0.15) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-content 6s ease-in-out infinite;
+                }
+                
+                .mood-lethargic .mood-aura {
+                    background: radial-gradient(circle, rgba(128,128,128,0.1) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-lethargic 8s ease-in-out infinite;
+                }
+                
+                .mood-hungry .mood-aura {
+                    background: radial-gradient(circle, rgba(255,165,0,0.1) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-hungry 3s ease-in-out infinite;
+                }
+                
+                .mood-sleepy .mood-aura {
+                    background: radial-gradient(circle, rgba(138,43,226,0.05) 0%, rgba(255,255,255,0) 70%);
+                    animation: pulse-sleepy 10s ease-in-out infinite;
+                }
+                
+                /* Aura animation keyframes */
+                @keyframes pulse-playful {
+                    0%, 100% { opacity: 0.7; transform: scale(1); }
+                    50% { opacity: 1; transform: scale(1.1); }
+                }
+                
+                @keyframes pulse-agitated {
+                    0%, 100% { opacity: 0.7; transform: scale(1); }
+                    50% { opacity: 0.9; transform: scale(1.08); }
+                }
+                
+                @keyframes pulse-content {
+                    0%, 100% { opacity: 0.5; transform: scale(1); }
+                    50% { opacity: 0.8; transform: scale(1.05); }
+                }
+                
+                @keyframes pulse-lethargic {
+                    0%, 100% { opacity: 0.4; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.02); }
+                }
+                
+                @keyframes pulse-hungry {
+                    0%, 100% { opacity: 0.6; transform: scale(1); }
+                    50% { opacity: 0.9; transform: scale(1.07); }
+                }
+                
+                @keyframes pulse-sleepy {
+                    0%, 100% { opacity: 0.3; transform: scale(1); }
+                    50% { opacity: 0.4; transform: scale(1.01); }
                 }
             `}</style>
         </div>
