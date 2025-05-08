@@ -395,7 +395,7 @@ export default function HomeClient() {
                         onMouseDown={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
                         onMouseUp={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                     >
-                        <span className="text-2xl">🥕</span>
+                        <Image src="/feed.png" alt="Feed" width={48} height={48} />
                     </button>
 
                     {/* Play Button - Updated styling */}
@@ -405,9 +405,17 @@ export default function HomeClient() {
                             updateLastInteractionTime();
                         }}
                         disabled={isGrooming || isFeeding}
-                        className="flex items-center justify-center w-14 h-14 bg-zinc-600 rounded-lg shadow hover:bg-zinc-500 active:bg-zinc-700 transition-colors"
+                        className="flex items-center justify-center w-14 h-14 rounded-lg shadow transition-colors"
+                        style={{
+                          backgroundColor: 'rgba(var(--ui-bg-light), 0.8)',
+                          border: `1px solid rgba(var(--ui-border), 0.4)`
+                        }}
+                        onMouseOver={(e: any) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
+                        onMouseOut={(e: any) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 0.8)'; }}
+                        onMouseDown={(e: any) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
+                        onMouseUp={(e: any) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                     >
-                        <span className="text-2xl">🕹️</span>
+                        <Image src="/play.png" alt="Play" width={48} height={48} />
                     </button>
 
                     {/* Groom Button - Updated styling */}
@@ -424,7 +432,7 @@ export default function HomeClient() {
                         onMouseDown={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
                         onMouseUp={(e) => { if (!isGrooming) e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                    >
-                        <span className="text-2xl">🖌️</span>
+                        <Image src="/clean.png" alt="Clean" width={48} height={48} />
                     </button>
                     
                     {/* Closet/T-shirt Button - Updated styling */}
@@ -441,7 +449,7 @@ export default function HomeClient() {
                         onMouseDown={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-border), 0.5)'; }}
                         onMouseUp={(e) => { e.currentTarget.style.backgroundColor = 'rgba(var(--ui-bg-light), 1)'; }}
                     >
-                        <span className="text-2xl">👕</span>
+                        <Image src="/outfits.png" alt="Outfits" width={48} height={48} />
                     </button>
                 </div>
             </div>
