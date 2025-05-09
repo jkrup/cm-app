@@ -69,7 +69,20 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
       feedingFrequency: configStore.feedingReminderFrequency,
       feedingHours: configStore.feedingReminderHours
     });
-  }, [configStore]);
+  }, [
+    configStore.hungerDecayRate,
+    configStore.energyDecayRate,
+    configStore.boredomDecayRate,
+    configStore.affectionDecayRate,
+    configStore.hungerThreshold,
+    configStore.energyThreshold,
+    configStore.boredomThreshold,
+    configStore.affectionThreshold,
+    configStore.notificationsEnabled,
+    configStore.soundsEnabled,
+    configStore.feedingReminderFrequency,
+    configStore.feedingReminderHours
+  ]);
   
   // Handle decay rate changes
   const handleDecayRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
