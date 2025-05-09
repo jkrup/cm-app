@@ -467,7 +467,6 @@ export default function HomeClient() {
                     onClose={() => setShowCloset(false)}
                     currentCostume={costumeSelection}
                     onSelectCostume={handleSelectCostume}
-                    mammothExpression={getMammothExpression()}
                 />
             )}
 

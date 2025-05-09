@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
+// Import the mediumMammothImg
+import mediumMammothImg from '@/public/mammoth/medium.png';
+
 // Define type for costumes
 type CostumeType = null | 'angel' | 'devil' | 'magician' | 'bday-hat' | 'beach' | 
                   'bucket' | 'cowboy' | 'pirate' | 'sailor' | 'winter' | 
@@ -42,7 +45,6 @@ interface ClosetModalProps {
   onClose: () => void;
   currentCostume: CostumeType;
   onSelectCostume: (costume: CostumeType) => void;
-  mammothExpression: any; // Image source for the current mammoth expression
 }
 
 export default function ClosetModal({ 
@@ -50,7 +52,6 @@ export default function ClosetModal({
   onClose, 
   currentCostume, 
   onSelectCostume,
-  mammothExpression 
 }: ClosetModalProps) {
   // Current selected index in the carousel
   const [activeIndex, setActiveIndex] = useState(() => {
@@ -178,7 +179,7 @@ export default function ClosetModal({
           <div className="relative">
             {/* Base mammoth */}
             <Image 
-              src={mammothExpression} 
+              src={mediumMammothImg}
               alt="Your pet mammoth" 
               priority
               className="w-32 h-32 object-contain"
