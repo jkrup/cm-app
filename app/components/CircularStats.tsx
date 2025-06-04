@@ -158,31 +158,6 @@ const CircularStats: React.FC<CircularStatsProps> = ({
     <div className="w-full max-w-md mx-auto">
       {/* Circular Stats Component */}
       <div className={`relative w-full aspect-square ${getMoodClass()}`}>
-        <svg viewBox="-120 -120 240 240" className="w-full h-full">
-          {/* Energy meter (blue) */}
-          <path
-            d={energyPath}
-            fill="none"
-            className={`stroke-[#3498db] ${energyChanged ? 'animate-stat-pulse' : 'opacity-20'}`}
-            strokeWidth="12"
-            strokeLinecap="round"
-            filter="drop-shadow(0 0 3px #3498db80)"
-          />
-
-          {/* Happiness meter (green) */}
-          <path
-            d={happinessPath}
-            fill="none"
-            className={`stroke-[#2ecc71] ${happinessChanged ? 'animate-stat-pulse' : 'opacity-20'}`}
-            strokeWidth="12"
-            strokeLinecap="round"
-            filter="drop-shadow(0 0 3px #2ecc7180)"
-          />
-          
-          {/* Energy and Happiness labels */}
-          <text x="-110" y="-75" className="fill-[#3498db] text-[10px] font-medium">ENERGY</text>
-          <text x="75" y="-75" className="fill-[#2ecc71] text-[10px] font-medium">HAPPINESS</text>
-        </svg>
 
         {/* Center content (mammoth) */}
         <div className="absolute inset-0 flex items-center justify-center z-20">
@@ -198,30 +173,6 @@ const CircularStats: React.FC<CircularStatsProps> = ({
             />
           )}
         </div>
-        
-        {/* Emotional State Grid Button (top right) */}
-        <button 
-          onClick={toggleEmotionalGrid}
-          className="absolute top-2 right-2 bg-[#1A2845]/30 hover:bg-[#1A2845]/50 p-2 rounded-full z-30"
-        >
-          <span role="img" aria-label="Emotional Grid">📊</span>
-        </button>
-        
-        {/* Emotional State Grid (pop-up) */}
-        {showEmotionalGrid && (
-          <div className="absolute top-[10%] right-[10%] z-40 bg-[#1A2845]/90 p-4 rounded-xl shadow-lg border border-[#3498db]/50">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-[#D6ECF0] font-medium">Emotional State</h3>
-              <button 
-                onClick={toggleEmotionalGrid}
-                className="text-[#D6ECF0] opacity-70 hover:opacity-100"
-              >
-                ×
-              </button>
-            </div>
-            <EmotionalStateGrid size="md" />
-          </div>
-        )}
 
         {/* Status text - only show if showMoodText is true */}
         {showMoodText && (
