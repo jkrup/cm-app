@@ -154,7 +154,7 @@ export default function ClosetModal({
         {/* Header */}
         <div className="border-b border-blue-900/50 p-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-white">Mammoth Closet</h2>
+            <h2 className="text-lg font-bold text-white text-center w-full">Closet</h2>
             <button
               onClick={onClose}
               className="text-gray-300 hover:text-white"
@@ -254,15 +254,6 @@ export default function ClosetModal({
           </div>
         </div>
         
-        {/* Action buttons */}
-        <div className="border-t border-blue-900/50 p-4 flex justify-center">
-          <button
-            onClick={handleSelectCostume}
-            className="px-6 py-2 rounded-lg bg-[#6ECBDC] text-[#070F24] font-medium hover:bg-[#3898B8] transition-colors"
-          >
-            Wear
-          </button>
-        </div>
       </div>
     </div>
   );
